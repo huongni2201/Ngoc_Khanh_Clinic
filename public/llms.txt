@@ -1,0 +1,10 @@
+# ClinicOne HIS
+
+> He thong Phong Kham Da Khoa Ngoc Khanh ClinicOne.
+
+## Overview
+ClinicOne is a healthcare transformation system.
+
+## Links
+- [Dashboard](/dashboard): Clinical Dashboard
+
