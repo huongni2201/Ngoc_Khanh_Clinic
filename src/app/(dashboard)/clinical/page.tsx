@@ -174,7 +174,7 @@ export default function ClinicalWorklistPage() {
                     onClick={handleOpenConclusion}
                     className="font-bold text-xs h-9 bg-emerald-700 hover:bg-emerald-800 text-white shadow-md shadow-emerald-700/20"
                   >
-                    <span>Mở kết quả & Kết luận</span>
+                    <span>Mở hồ sơ & Kết luận</span>
                     <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </td>
@@ -251,7 +251,7 @@ export default function ClinicalWorklistPage() {
                     onClick={handleStartExam}
                     className="font-bold text-xs h-9 bg-clinic-blue hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
                   >
-                    <span>Bắt đầu khám</span>
+                    <span>Mở hồ sơ & Khám</span>
                     <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </td>
@@ -280,15 +280,16 @@ export default function ClinicalWorklistPage() {
                   </Badge>
                 </td>
                 <td className="p-3 text-right">
-                  <Link href={`/encounters/${encounterCode}`}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs h-8 font-bold text-slate-700 hover:text-clinic-blue hover:border-clinic-blue"
-                    >
-                      Gọi vào khám →
-                    </Button>
-                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      handleStartExam();
+                    }}
+                    className="text-xs h-8 font-bold text-slate-700 hover:text-clinic-blue hover:border-clinic-blue"
+                  >
+                    Mở hồ sơ & Khám →
+                  </Button>
                 </td>
               </tr>
             ))}

@@ -8,12 +8,11 @@ export type EncounterStatus =
   | "WAITING_FOR_EXAM"
   | "IN_EXAM"
   | "ORDERED"
-  | "WAITING_FOR_PAYMENT"
-  | "PAID_AUTHORIZED"
   | "DIAGNOSTIC_IN_PROGRESS"
   | "PARTIAL_RESULTS"
   | "RESULTS_COMPLETE"
   | "WAITING_FOR_CONCLUSION"
+  | "IN_CONCLUSION"
   | "PRESCRIPTION_READY"
   | "COMPLETED"
   | "CANCELED";
@@ -51,9 +50,8 @@ export interface EncounterOrder {
   roomCode: string;
   roomName: string;
   price: number;
-  serviceRequestStatus?: ServiceRequestStatus;
-  paymentAuthorizationStatus?: PaymentAuthorizationStatus;
-  status: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED";
+  serviceRequestStatus: ServiceRequestStatus;
+  paymentAuthorizationStatus: PaymentAuthorizationStatus;
 }
 
 export interface Encounter {
@@ -89,4 +87,49 @@ export interface Encounter {
       qrImageUrl: string;
     };
   };
+}
+
+/** Read model for Doctor Worklist (includes clinical info) */
+export interface DoctorWorklistItem {
+  encounterId: string;
+  patientId: string;
+  patientCode: string;
+  patientName: string;
+  age: number;
+  sex: "MALE" | "FEMALE" | "OTHER";
+  reasonForVisit: string;
+  roomCode: string;
+  doctorId: string;
+  doctorName: string;
+  journeyStage: JourneyStage;
+  initialConsultationPaymentStatus: "CONFIRMED" | "PENDING";
+  activeOrderRound?: number;
+  diagnosticProgress?: {
+    completed: number;
+    total: number;
+  };
+  waitingSince: string;
+  arrivedAt?: string;
+  hasPenicillinAllergy?: boolean;
+  isConclusionReady?: boolean;
+}
+
+/** Read model for Front Desk Doctor Waitlist Summary (Strictly operational, NO clinical notes/detailed results) */
+export interface DoctorWaitlistSummaryItem {
+  encounterId: string;
+  patientCode: string;
+  patientName: string;
+  doctorName: string;
+  roomCode: string;
+  department: string;
+  stage:
+    | "WAITING_FOR_DOCTOR"
+    | "IN_EXAM"
+    | "WAITING_FOR_DIAGNOSTIC_PAYMENT"
+    | "WAITING_FOR_DIAGNOSTIC"
+    | "DIAGNOSTIC_IN_PROGRESS"
+    | "WAITING_FOR_RESULTS"
+    | "WAITING_FOR_CONCLUSION";
+  waitingMinutes: number;
+  initialExamFeePaid: boolean;
 }

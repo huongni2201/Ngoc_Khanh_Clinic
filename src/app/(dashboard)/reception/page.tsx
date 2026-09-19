@@ -9,6 +9,7 @@ import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
 import { VietQRCard } from "@/shared/components/vietqr-card";
+import { DoctorWaitlistSummary } from "@/widgets/doctor-waitlist-summary/doctor-waitlist-summary";
 import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import { useUIStore } from "@/shared/stores/ui.store";
 import { MOCK_PATIENTS, MockPatient } from "@/shared/constants/mock-data";
@@ -19,17 +20,16 @@ import {
   CheckCircle2,
   Users,
   ShieldAlert,
-  Printer,
   CreditCard,
   QrCode,
   Banknote,
   Stethoscope,
   ArrowRight,
-  Sparkles,
   Activity,
   Phone,
-  AlertCircle,
-  FileCheck,
+  Clock,
+  Sparkles,
+  Layers,
 } from "lucide-react";
 
 function ReceptionContent() {
@@ -127,8 +127,8 @@ function ReceptionContent() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="BÀN LỄ TÂN & TIẾP NHẬN BỆNH NHÂN (FRONT DESK)"
-        title="Tiếp nhận & Thu phí khám ban đầu"
+        eyebrow="BÀN LỄ TÂN & TIẾP ĐÓN"
+        title="Tiếp nhận bệnh nhân & Thu phí khám ban đầu"
         description="Đăng ký lượt khám ngoại trú, phân luồng phòng bác sĩ và xác nhận thu phí khám lâm sàng ban đầu (150.000 đ)"
         action={
           <div className="flex items-center gap-2">
@@ -147,8 +147,8 @@ function ReceptionContent() {
         }
       />
 
-      {/* Success State Card */}
-      {isSuccessSubmitted ? (
+      {/* Success Notification Banner */}
+      {isSuccessSubmitted && (
         <Card className="border-emerald-300 bg-emerald-50/90 text-emerald-950 p-6 shadow-xl animate-in zoom-in-95 space-y-5">
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ function ReceptionContent() {
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] uppercase font-bold text-emerald-700 block">MÃ LƯỢT KHÁM (ENCOUNTER):</span>
+              <span className="text-[10px] uppercase font-bold text-emerald-700 block">MÃ LƯỢT KHÁM:</span>
               <span className="font-mono text-xl font-black text-clinic-blue">{encounterCode}</span>
             </div>
           </div>
@@ -225,17 +225,17 @@ function ReceptionContent() {
             </div>
           </div>
         </Card>
-      ) : null}
+      )}
 
-      {/* Main Intake Layout (2 Columns) */}
+      {/* Main Front Desk Layout (2 Columns: Left = Reception Intake, Right = Room Waitlist Status) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Patient Search & Demographics (5 cols) */}
-        <div className="lg:col-span-5 space-y-5">
+        {/* Left Column: Reception Intake Form (7 cols on lg+) */}
+        <div className="lg:col-span-7 space-y-5">
           {/* Patient Search Card */}
           <Card className="border-slate-200 shadow-sm bg-white">
             <CardHeader className="p-4 bg-slate-50/80 border-b border-slate-200">
               <span className="text-[10px] font-black uppercase text-clinic-blue tracking-wider">
-                10.1 TÌM KIẾM BỆNH NHÂN
+                BƯỚC 1: TÌM KIẾM & CHỌN BỆNH NHÂN
               </span>
               <CardTitle className="text-sm font-bold text-slate-900">
                 Tìm kiếm theo Họ tên / SĐT / CCCD / Mã BN
@@ -289,7 +289,7 @@ function ReceptionContent() {
               {/* Quick Preset Patient Selector */}
               <div className="pt-2 border-t border-slate-100">
                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1.5">
-                  BỆNH NHÂN DEMO CHUẨN:
+                  BỆNH NHÂN MẪU:
                 </span>
                 <div className="flex gap-2">
                   <button
@@ -321,15 +321,15 @@ function ReceptionContent() {
             </CardContent>
           </Card>
 
-          {/* Selected Patient Information Card */}
+          {/* Selected Patient Identity Card */}
           {selectedPatient && (
             <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
               <CardHeader className="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-row items-center justify-between">
                 <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">
-                  HỒ SƠ BỆNH NHÂN TIẾP NHẬN
+                  THÔNG TIN BỆNH NHÂN TIẾP ĐÓN
                 </span>
                 <Badge variant="success" className="font-bold text-[10px]">
-                  ĐÃ XÁC THỰC
+                  HỒ SƠ ĐÃ XÁC THỰC
                 </Badge>
               </CardHeader>
               <CardContent className="p-4 space-y-3 text-xs">
@@ -348,7 +348,7 @@ function ReceptionContent() {
                   </div>
                 </div>
 
-                {/* Penicillin Allergy Warning */}
+                {/* Penicillin Allergy Warning Banner */}
                 {selectedPatient.allergies.length > 0 && (
                   <div className="p-3 bg-red-50 border-2 border-red-300 rounded-xl space-y-1">
                     <div className="flex items-center gap-1.5 font-black text-red-700 text-xs uppercase">
@@ -363,7 +363,7 @@ function ReceptionContent() {
                   </div>
                 )}
 
-                {/* Chronic & Vitals */}
+                {/* Chronic conditions info */}
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-slate-700">
                   <div>
                     <b>Bệnh nền: </b>{selectedPatient.chronicConditions.join(" • ") || "Không ghi nhận"}
@@ -381,14 +381,12 @@ function ReceptionContent() {
               </CardContent>
             </Card>
           )}
-        </div>
 
-        {/* Right Column: Encounter Information & Initial Consultation Fee (7 cols) */}
-        <div className="lg:col-span-7 space-y-5">
+          {/* Intake Details & Initial Consultation Fee Form */}
           <Card className="border-slate-200 shadow-sm bg-white">
             <CardHeader className="p-4 bg-slate-50/80 border-b border-slate-200">
               <span className="text-[10px] font-black uppercase text-clinic-blue tracking-wider">
-                10.2 & 10.3 THÔNG TIN KHÁM & THU PHÍ BAN ĐẦU
+                BƯỚC 2: PHÂN LUỒNG PHÒNG KHÁM & THU PHÍ KHÁM BAN ĐẦU
               </span>
               <CardTitle className="text-sm font-bold text-slate-900">
                 Chỉ định phòng khám & Xác nhận thu phí khám
@@ -451,7 +449,7 @@ function ReceptionContent() {
                   </div>
                 </div>
 
-                {/* Section 10.3: Initial Consultation Fee Box */}
+                {/* Initial Consultation Fee Box */}
                 <div className="p-4 bg-slate-900 text-white rounded-2xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div>
@@ -470,7 +468,7 @@ function ReceptionContent() {
                   {/* Payment Method Selector */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-300 block">
-                      Chọn phương thức thanh toán phí khám:
+                      Chọn hình thức thanh toán phí khám:
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       <button
@@ -531,7 +529,7 @@ function ReceptionContent() {
 
               <CardFooter className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
                 <span className="text-[11px] text-slate-500">
-                  Sau khi xác nhận, người bệnh sẽ chuyển sang trạng thái <b>Chờ bác sĩ khám</b>
+                  Sau khi xác nhận, người bệnh sẽ vào danh sách <b>Chờ bác sĩ khám</b>
                 </span>
                 <Button
                   type="submit"
@@ -545,6 +543,11 @@ function ReceptionContent() {
             </form>
           </Card>
         </div>
+
+        {/* Right Column: Doctor Waitlist Operational Summary (5 cols on lg+) */}
+        <div className="lg:col-span-5 space-y-5">
+          <DoctorWaitlistSummary />
+        </div>
       </div>
     </div>
   );
@@ -555,7 +558,7 @@ export default function ReceptionPage() {
     <React.Suspense
       fallback={
         <div className="p-8 text-center text-xs text-slate-500 font-semibold">
-          Đang tải phân hệ Lễ tân & Thu phí khám...
+          Đang tải phân hệ Lễ tân & Tiếp nhận...
         </div>
       }
     >

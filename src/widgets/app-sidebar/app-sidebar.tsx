@@ -112,17 +112,6 @@ export function AppSidebar() {
       ],
     },
     {
-      title: "THANH TOÁN",
-      items: [
-        {
-          label: "Thanh toán dịch vụ CLS",
-          href: "/billing",
-          icon: CreditCard,
-          roles: ["ALL", "FRONT_DESK", "MANAGER"],
-        },
-      ],
-    },
-    {
       title: "BỆNH NHÂN",
       items: [
         {
@@ -137,6 +126,12 @@ export function AppSidebar() {
     {
       title: "QUẢN LÝ",
       items: [
+        {
+          label: "Thanh toán & Đối soát",
+          href: "/billing",
+          icon: CreditCard,
+          roles: ["ALL", "MANAGER", "ADMIN"],
+        },
         {
           label: "Báo cáo",
           href: "/reports",

@@ -1,3 +1,38 @@
+export interface PreviousResultItem {
+  id: string;
+  category: "LAB" | "ULTRASOUND" | "XRAY" | "ECG";
+  testName: string;
+  date: string;
+  doctor: string;
+  summary: string;
+  isAbnormal: boolean;
+  flag?: string;
+  details?: string;
+}
+
+export interface PreviousPrescriptionItem {
+  id: string;
+  rxCode: string;
+  date: string;
+  doctor: string;
+  diagnosis: string;
+  medications: Array<{
+    name: string;
+    dosage: string;
+    quantity: string;
+    usage: string;
+  }>;
+}
+
+export interface PatientDocumentItem {
+  id: string;
+  title: string;
+  type: "PDF" | "SCAN" | "IMAGE";
+  uploadedAt: string;
+  size: string;
+  source: string;
+}
+
 export interface MockPatient {
   id: string;
   patientCode: string;
@@ -18,9 +53,11 @@ export interface MockPatient {
     cholesterol: number;
     bmi: number;
     spo2: number;
+    temperature?: number;
     recordedAt: string;
   };
   recentEncounters: Array<{
+    id?: string;
     date: string;
     department: string;
     doctor: string;
@@ -28,6 +65,10 @@ export interface MockPatient {
     keyResults: string;
     prescription: string;
   }>;
+  previousDiagnoses: string[];
+  previousResults: PreviousResultItem[];
+  previousPrescriptions: PreviousPrescriptionItem[];
+  documents: PatientDocumentItem[];
 }
 
 export const MOCK_PATIENTS: MockPatient[] = [
@@ -45,7 +86,7 @@ export const MOCK_PATIENTS: MockPatient[] = [
       {
         substance: "Penicillin",
         severity: "SEVERE",
-        note: "Phản vệ độ 2 năm 2021 (nổi mề đay toàn thân, khó thở thanh quản). Chống chỉ định tuyệt đối nhóm Beta-lactam!",
+        note: "Phản vệ độ 2 năm 2021 (mề đay toàn thân, khó thở thanh quản). Chống chỉ định tuyệt đối nhóm Beta-lactam!",
       },
     ],
     chronicConditions: [
@@ -53,8 +94,8 @@ export const MOCK_PATIENTS: MockPatient[] = [
       "Rối loạn lipid máu hỗn hợp (E78.2) - 1 năm",
     ],
     regularMedications: [
-      "Amlodipine 5mg (1 viên sáng)",
-      "Atorvastatin 10mg (1 viên tối)",
+      "Amlodipine 5mg (1 viên sáng sau ăn)",
+      "Atorvastatin 10mg (1 viên tối sau ăn)",
     ],
     latestVitals: {
       bloodPressure: "148/92 mmHg",
@@ -63,10 +104,12 @@ export const MOCK_PATIENTS: MockPatient[] = [
       cholesterol: 6.2,
       bmi: 24.3,
       spo2: 98,
-      recordedAt: "17/09/2026 08:35",
+      temperature: 36.8,
+      recordedAt: "19/09/2026 08:35",
     },
     recentEncounters: [
       {
+        id: "enc-prev-01",
         date: "04/09/2026",
         department: "Khoa Tim Mạch",
         doctor: "BS. Hoàng Ngọc",
@@ -75,12 +118,114 @@ export const MOCK_PATIENTS: MockPatient[] = [
         prescription: "Amlodipine 5mg x 30v, Micardis 40mg x 30v",
       },
       {
+        id: "enc-prev-02",
         date: "02/06/2026",
         department: "Khám Sức Khỏe Tổng Quát",
         doctor: "BS. Lê Minh",
-        diagnosis: "Z00.0 — Khám sức khỏe định kỳ",
-        keyResults: "WBC 7.2, Glucose 5.4, Men gan AST/ALT trong giới hạn.",
-        prescription: "Vitamin tổng hợp",
+        diagnosis: "Z00.0 — Khám sức khỏe định kỳ doanh nghiệp",
+        keyResults: "WBC 7.2 G/L, Glucose 5.4 mmol/L, Men gan AST/ALT bình thường.",
+        prescription: "Vitamin tổng hợp 3B x 30v",
+      },
+    ],
+    previousDiagnoses: [
+      "I10 — Tăng huyết áp nguyên phát (04/09/2026)",
+      "E78.2 — Rối loạn chuyển hóa lipid hỗn hợp (04/09/2026)",
+      "Z00.0 — Khám sức khỏe định kỳ doanh nghiệp (02/06/2026)",
+      "K29.0 — Viêm dạ dày trợt nông cấp tính (15/12/2025)",
+    ],
+    previousResults: [
+      {
+        id: "res-01",
+        category: "ECG",
+        testName: "Điện tâm đồ thông thường 12 chuyển đạo",
+        date: "04/09/2026",
+        doctor: "BS. Hoàng Ngọc (P.208)",
+        summary: "Nhịp xoang đều 78 ck/p. Dày thất trái nhẹ Sokolow-Lyon 36mm.",
+        isAbnormal: true,
+        flag: "Bất thường nhẹ",
+        details: "Trục tim trung gian +55 độ, chưa thấy thiếu máu cơ tim cục bộ.",
+      },
+      {
+        id: "res-02",
+        category: "LAB",
+        testName: "Bộ mỡ máu Lipid toàn phần (Cholesterol, TG, HDL, LDL)",
+        date: "04/09/2026",
+        doctor: "KTV. Trần Thu Hà (P.202)",
+        summary: "Cholesterol toàn phần: 6.2 mmol/L (↑), Triglyceride: 2.4 mmol/L (↑)",
+        isAbnormal: true,
+        flag: "↑ Cao",
+        details: "HDL-C 1.1 mmol/L, LDL-C 4.1 mmol/L. Nguy cơ tim mạch trung bình.",
+      },
+      {
+        id: "res-03",
+        category: "ULTRASOUND",
+        testName: "Siêu âm màu Doppler ổ bụng tổng quát",
+        date: "02/06/2026",
+        doctor: "BS. Nguyễn Văn Hùng (P.105)",
+        summary: "Gan nhiễm mỡ độ 1 nhẹ. Nhu mô đồng nhất, không sỏi mật hay sỏi thận.",
+        isAbnormal: true,
+        flag: "Độ 1",
+        details: "Tụy lách bình thường. Tuyến tiền liệt kích thước bình thường.",
+      },
+      {
+        id: "res-04",
+        category: "XRAY",
+        testName: "Chụp X-quang tim phổi thẳng kỹ thuật số (KTS)",
+        date: "02/06/2026",
+        doctor: "KTV. Lê Quốc Bảo (P.102)",
+        summary: "Bóng tim không to. Trường phổi sáng đều, góc sườn hoành sáng rõ.",
+        isAbnormal: false,
+        flag: "Bình thường",
+      },
+    ],
+    previousPrescriptions: [
+      {
+        id: "rx-prev-01",
+        rxCode: "RX-260904-009",
+        date: "04/09/2026",
+        doctor: "BS. Hoàng Ngọc",
+        diagnosis: "I10 - Tăng huyết áp nguyên phát / Rối loạn lipid máu",
+        medications: [
+          { name: "Amlodipine 5mg", dosage: "5mg", quantity: "30 viên", usage: "Uống 1 viên vào lúc 08h00 sáng sau ăn" },
+          { name: "Micardis 40mg (Telmisartan)", dosage: "40mg", quantity: "30 viên", usage: "Uống 1 viên vào lúc 08h00 sáng sau ăn" },
+          { name: "Atorvastatin 10mg", dosage: "10mg", quantity: "30 viên", usage: "Uống 1 viên vào lúc 20h00 tối sau ăn" },
+        ],
+      },
+      {
+        id: "rx-prev-02",
+        rxCode: "RX-260602-044",
+        date: "02/06/2026",
+        doctor: "BS. Lê Minh",
+        diagnosis: "Z00.0 - Khám sức khỏe định kỳ",
+        medications: [
+          { name: "Vitamin tổng hợp 3B (B1, B6, B12)", dosage: "Viên nén", quantity: "60 viên", usage: "Uống 2 viên/ngày chia 2 lần" },
+        ],
+      },
+    ],
+    documents: [
+      {
+        id: "doc-01",
+        title: "Bản sao Bệnh án đợt cấp Tăng huyết áp 2024 (BV Tim Hà Nội)",
+        type: "PDF",
+        uploadedAt: "10/01/2025",
+        size: "2.4 MB",
+        source: "Bệnh nhân cung cấp",
+      },
+      {
+        id: "doc-02",
+        title: "Phiếu ghi nhận phản vệ thuốc Penicillin độ 2 (Trung tâm Dị ứng Bạch Mai)",
+        type: "SCAN",
+        uploadedAt: "14/05/2021",
+        size: "1.1 MB",
+        source: "Hồ sơ y tế lịch sử",
+      },
+      {
+        id: "doc-03",
+        title: "Phim chụp MRI sọ não không tiêm thuốc đối quang (Chưa phát hiện u mạch)",
+        type: "IMAGE",
+        uploadedAt: "15/12/2025",
+        size: "14.8 MB",
+        source: "BV Đại học Y Hà Nội",
       },
     ],
   },
@@ -93,7 +238,7 @@ export const MOCK_PATIENTS: MockPatient[] = [
     gender: "MALE",
     phone: "0988 234 111",
     identityCard: "001080004512",
-    address: "Tổ dân phố 5, Dịch Vọng Hậu, Cầu Giấy",
+    address: "Tổ dân phố 5, Dịch Vọng Hậu, Cầu Giấy, Hà Nội",
     allergies: [],
     chronicConditions: ["Viêm mũi xoang dị ứng"],
     regularMedications: [],
@@ -104,10 +249,12 @@ export const MOCK_PATIENTS: MockPatient[] = [
       cholesterol: 4.8,
       bmi: 22.8,
       spo2: 99,
+      temperature: 36.6,
       recordedAt: "20/08/2026 10:15",
     },
     recentEncounters: [
       {
+        id: "enc-prev-p2-01",
         date: "20/08/2026",
         department: "Tai Mũi Họng",
         doctor: "BS. Mai Hoa",
@@ -116,6 +263,32 @@ export const MOCK_PATIENTS: MockPatient[] = [
         prescription: "Telfast 180mg x 10v",
       },
     ],
+    previousDiagnoses: ["J30 — Viêm mũi dị ứng cấp (20/08/2026)"],
+    previousResults: [
+      {
+        id: "res-p2-01",
+        category: "LAB",
+        testName: "Tổng phân tích máu CTM",
+        date: "20/08/2026",
+        doctor: "KTV. Trần Thu Hà",
+        summary: "Bạch cầu ái toan Eos 8.2% (↑). CTM bình thường.",
+        isAbnormal: true,
+        flag: "Eos ↑",
+      },
+    ],
+    previousPrescriptions: [
+      {
+        id: "rx-p2-01",
+        rxCode: "RX-260820-019",
+        date: "20/08/2026",
+        doctor: "BS. Mai Hoa",
+        diagnosis: "J30 - Viêm mũi dị ứng",
+        medications: [
+          { name: "Telfast 180mg (Fexofenadine)", dosage: "180mg", quantity: "10 viên", usage: "Uống 1 viên tối" },
+        ],
+      },
+    ],
+    documents: [],
   },
   {
     id: "p3",
@@ -127,7 +300,7 @@ export const MOCK_PATIENTS: MockPatient[] = [
     phone: "0904 011 552",
     identityCard: "001091007731",
     address: "Xuân Thủy, Cầu Giấy, Hà Nội",
-    allergies: [{ substance: "Aspirin", severity: "MODERATE", note: "Đau dạ dày, xuất huyết tiêu hóa nhẹ" }],
+    allergies: [{ substance: "Aspirin", severity: "MODERATE", note: "Đau dạ dày, kích ứng niêm mạc tiêu hóa" }],
     chronicConditions: ["Viêm da cơ địa"],
     regularMedications: [],
     latestVitals: {
@@ -137,18 +310,24 @@ export const MOCK_PATIENTS: MockPatient[] = [
       cholesterol: 4.2,
       bmi: 21.5,
       spo2: 99,
+      temperature: 36.7,
       recordedAt: "11/06/2026 14:20",
     },
     recentEncounters: [
       {
+        id: "enc-prev-p3-01",
         date: "11/06/2026",
         department: "Da Liễu",
         doctor: "BS. Trần Mai",
         diagnosis: "L20 — Viêm da dị ứng",
         keyResults: "Không chỉ định CLS",
-        prescription: "Bôi kem dưỡng Fucidin x 1 tuýp",
+        prescription: "Fucidin cream bôi ngày 2 lần",
       },
     ],
+    previousDiagnoses: ["L20 — Viêm da dị ứng (11/06/2026)"],
+    previousResults: [],
+    previousPrescriptions: [],
+    documents: [],
   },
 ];
 
@@ -294,13 +473,15 @@ export interface MockEncounter {
   dob: string;
   registeredAt: string;
   status:
+    | "IN_PROGRESS"
     | "WAITING_FOR_EXAM"
     | "IN_EXAM"
-    | "WAITING_FOR_PAYMENT"
-    | "PAID_AUTHORIZED"
+    | "ORDERED"
     | "DIAGNOSTIC_IN_PROGRESS"
     | "PARTIAL_RESULTS"
     | "RESULTS_COMPLETE"
+    | "WAITING_FOR_CONCLUSION"
+    | "IN_CONCLUSION"
     | "PRESCRIPTION_READY"
     | "COMPLETED";
   chiefComplaint: string;
@@ -316,9 +497,8 @@ export interface MockEncounter {
     roomCode: string;
     roomName: string;
     price: number;
-    serviceRequestStatus?: "ORDERED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
-    paymentAuthorizationStatus?: "NOT_REQUIRED" | "PENDING" | "AUTHORIZED" | "WAIVED" | "REVOKED";
-    status: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED";
+    serviceRequestStatus: "ORDERED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+    paymentAuthorizationStatus: "NOT_REQUIRED" | "PENDING" | "AUTHORIZED" | "WAIVED" | "REVOKED";
   }>;
   invoice: {
     invoiceCode: string;
@@ -364,7 +544,6 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       price: 85000,
       serviceRequestStatus: "COMPLETED",
       paymentAuthorizationStatus: "AUTHORIZED",
-      status: "COMPLETED",
     },
     {
       round: 1,
@@ -375,7 +554,6 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       price: 45000,
       serviceRequestStatus: "COMPLETED",
       paymentAuthorizationStatus: "AUTHORIZED",
-      status: "COMPLETED",
     },
     {
       round: 1,
@@ -386,7 +564,6 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       price: 120000,
       serviceRequestStatus: "COMPLETED",
       paymentAuthorizationStatus: "AUTHORIZED",
-      status: "COMPLETED",
     },
   ],
   invoice: {

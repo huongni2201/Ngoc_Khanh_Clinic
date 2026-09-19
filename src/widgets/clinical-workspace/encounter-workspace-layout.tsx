@@ -2,21 +2,21 @@
 
 import * as React from "react";
 import { PatientHeader } from "@/widgets/patient-header/patient-header";
-import { PatientTimeline } from "@/widgets/patient-timeline/patient-timeline";
+import { PatientClinicalRecord } from "@/widgets/patient-clinical-record/patient-clinical-record";
 import { ClinicalWorkspace } from "@/widgets/clinical-workspace/clinical-workspace";
 import { Encounter } from "@/entities/encounter/model/encounter.types";
-import { Stethoscope, History } from "lucide-react";
+import { Stethoscope, FileText } from "lucide-react";
 
 interface EncounterWorkspaceLayoutProps {
   encounter: Encounter;
 }
 
 export function EncounterWorkspaceLayout({ encounter }: EncounterWorkspaceLayoutProps) {
-  const [mobileTab, setMobileTab] = React.useState<"workspace" | "timeline">("workspace");
+  const [mobileTab, setMobileTab] = React.useState<"workspace" | "record">("workspace");
 
   return (
     <div className="space-y-6">
-      {/* Patient Safety Header */}
+      {/* Sticky Patient Safety Header */}
       <PatientHeader
         patientName={encounter.patientName}
         gender={encounter.gender}
@@ -43,33 +43,33 @@ export function EncounterWorkspaceLayout({ encounter }: EncounterWorkspaceLayout
         </button>
         <button
           type="button"
-          onClick={() => setMobileTab("timeline")}
+          onClick={() => setMobileTab("record")}
           className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-            mobileTab === "timeline"
+            mobileTab === "record"
               ? "bg-white text-clinic-blue shadow-sm"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <History className="w-4 h-4" />
-          Lịch sử đợt khám (Timeline)
+          <FileText className="w-4 h-4" />
+          Hồ sơ bệnh nhân (Patient Record)
         </button>
       </div>
 
       {/* Two-Column Clinical Layout (Desktop lg+) / Tabbed View (Mobile < lg) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Timeline and Medical History (4 cols on lg+) */}
+        {/* Left Column: Full Patient Clinical Record Panel (4 cols on lg+) */}
         <div
           className={`lg:col-span-4 space-y-6 ${
             mobileTab === "workspace" ? "hidden lg:block" : "block"
           }`}
         >
-          <PatientTimeline />
+          <PatientClinicalRecord patientId={encounter.patientId} />
         </div>
 
         {/* Right Column: Active Clinical Workspace (8 cols on lg+) */}
         <div
           className={`lg:col-span-8 ${
-            mobileTab === "timeline" ? "hidden lg:block" : "block"
+            mobileTab === "record" ? "hidden lg:block" : "block"
           }`}
         >
           <ClinicalWorkspace />

@@ -34,7 +34,7 @@ export default function ImagingPage() {
 
   const handleApprove = () => {
     if (!isAuthorized) {
-      showToast("Chưa được phép thực hiện: Bệnh nhân chưa thanh toán phí dịch vụ CLS!");
+      showToast("Không thể bắt đầu dịch vụ: Chưa được xác nhận thanh toán phí cận lâm sàng tại phòng bác sĩ!");
       return;
     }
     finalizeImaging();
@@ -71,15 +71,15 @@ export default function ImagingPage() {
         <Card className="border-amber-300 bg-amber-50/90 text-amber-950 p-4 shadow-sm space-y-2">
           <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
             <Lock className="w-5 h-5 text-amber-700" />
-            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT GATE LOCKED)</span>
+            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT AUTHORIZATION: PENDING)</span>
           </div>
           <p className="text-xs text-amber-800 leading-relaxed">
-            Chỉ định kỹ thuật Điện tim & Siêu âm của người bệnh <b>{patientName} ({patientCode})</b> chưa được cấp quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thanh toán tại Quầy thu ngân trước khi vào phòng kỹ thuật.
+            Chỉ định kỹ thuật Điện tim & Siêu âm của người bệnh <b>{patientName} ({patientCode})</b> chưa được cấp quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thanh toán phí cận lâm sàng tại phòng khám của bác sĩ trước khi vào phòng kỹ thuật.
           </p>
-          <div className="pt-1">
-            <Link href="/billing">
+          <div className="pt-1 flex items-center gap-2">
+            <Link href="/clinical">
               <Button size="sm" className="bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs h-8">
-                Mở màn hình Thanh toán CLS →
+                Xem phòng Bác sĩ khám (P.203) →
               </Button>
             </Link>
           </div>

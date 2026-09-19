@@ -41,7 +41,7 @@ export default function LaboratoryPage() {
 
   const handleCollectSample = () => {
     if (!isAuthorized) {
-      showToast("Chưa thể lấy mẫu: Bệnh nhân chưa nộp phí CLS tại Quầy thu ngân!");
+      showToast("Không thể bắt đầu dịch vụ: Chưa được xác nhận thanh toán phí cận lâm sàng tại phòng bác sĩ!");
       return;
     }
     collectLabSample();
@@ -50,7 +50,7 @@ export default function LaboratoryPage() {
 
   const handleVerifyFinal = () => {
     if (!isAuthorized) {
-      showToast("Chưa được phép thực hiện: Bệnh nhân chưa thanh toán CLS!");
+      showToast("Không thể bắt đầu dịch vụ: Chưa được xác nhận thanh toán phí cận lâm sàng tại phòng bác sĩ!");
       return;
     }
     finalizeLab();
@@ -98,15 +98,15 @@ export default function LaboratoryPage() {
         <Card className="border-amber-300 bg-amber-50/90 text-amber-950 p-4 shadow-sm space-y-2">
           <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
             <Lock className="w-5 h-5 text-amber-700" />
-            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT GATE LOCKED)</span>
+            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT AUTHORIZATION: PENDING)</span>
           </div>
           <p className="text-xs text-amber-800 leading-relaxed">
-            Chỉ định xét nghiệm máu của người bệnh <b>{patientName} ({patientCode})</b> chưa được kích hoạt quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thủ tục thanh toán viện phí tại Quầy thanh toán trước khi lấy mẫu.
+            Chỉ định xét nghiệm máu của người bệnh <b>{patientName} ({patientCode})</b> chưa được kích hoạt quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thanh toán phí cận lâm sàng tại phòng khám của bác sĩ trước khi lấy mẫu.
           </p>
-          <div className="pt-1">
-            <Link href="/billing">
+          <div className="pt-1 flex items-center gap-2">
+            <Link href="/clinical">
               <Button size="sm" className="bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs h-8">
-                Mở màn hình Thanh toán CLS →
+                Xem phòng Bác sĩ khám (P.203) →
               </Button>
             </Link>
           </div>

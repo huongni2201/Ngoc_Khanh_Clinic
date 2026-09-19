@@ -91,8 +91,8 @@ export function EncounterJourneyBar() {
     },
     {
       id: "billing",
-      label: "Thanh toán CLS",
-      href: "/billing",
+      label: "Thu phí CLS",
+      href: "/clinical",
       isPassed: isBillingPassed,
       isActive: journeyStage === "WAITING_FOR_DIAGNOSTIC_PAYMENT",
     },

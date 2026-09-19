@@ -70,11 +70,16 @@ export default function DiagnosticBillingPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="QUẦY THU NGÂN — PHÂN HỆ VIỆN PHÍ"
-        title="Thanh toán Dịch vụ Cận Lâm Sàng (Diagnostic Payment)"
-        description="Thu phí các chỉ định cận lâm sàng phát sinh từ bác sĩ và kích hoạt quyền thực hiện dịch vụ (Payment Authorization) cho phòng Lab & CĐHA"
+        eyebrow="QUẢN TRỊ VIỆN PHÍ & ĐỐI SOÁT"
+        title="Đối soát & Quản lý Viện phí Cận Lâm Sàng"
+        description="Phân hệ dành cho Kế toán / Thu ngân đối soát giao dịch, tra cứu hóa đơn và xử lý bảo lãnh/hoàn phí. Lưu ý: Quy trình khám chuẩn thu phí CLS trực tiếp tại phòng khám Bác sĩ."
         action={
           <div className="flex items-center gap-2">
+            <Link href="/clinical">
+              <Button variant="outline" size="sm" className="font-bold text-xs">
+                Tới buồng khám Bác sĩ →
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"

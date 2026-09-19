@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/shared/u
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
+import { DiagnosticPaymentDialog } from "@/features/billing/diagnostic-payment/diagnostic-payment-dialog";
 import {
   Printer,
   Receipt,
@@ -34,6 +35,8 @@ import {
   Sparkles,
   Layers,
   ExternalLink,
+  CreditCard,
+  Banknote,
 } from "lucide-react";
 
 export function ClinicalWorkspace() {
@@ -61,12 +64,21 @@ export function ClinicalWorkspace() {
     appointmentCode,
     labStatus,
     imagingStatus,
+    isDiagnosticAuthorized,
     submitOrderRound,
     issuePrescription,
     createFollowUpAppointment,
     completeEncounter,
     startConclusion,
   } = useDemoClinicFlowStore();
+
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = React.useState(false);
+  const [paymentTargetRound, setPaymentTargetRound] = React.useState<number>(1);
+
+  const handleOpenPaymentDialog = (round: number = 1) => {
+    setPaymentTargetRound(round);
+    setIsPaymentDialogOpen(true);
+  };
 
   const encounter = MOCK_ACTIVE_ENCOUNTER;
 
@@ -76,6 +88,13 @@ export function ClinicalWorkspace() {
   const round2Total = round2Orders.reduce((sum, o) => sum + o.price, 0);
   const totalCLS = getTotalCLSAmount();
 
+  const isRound1Authorized = round1Orders.length > 0 && round1Orders.every(
+    (o) => o.paymentAuthorizationStatus === "AUTHORIZED" || o.paymentAuthorizationStatus === "WAIVED"
+  );
+  const isRound2Authorized = round2Orders.length > 0 && round2Orders.every(
+    (o) => o.paymentAuthorizationStatus === "AUTHORIZED" || o.paymentAuthorizationStatus === "WAIVED"
+  );
+
   const [notes, setNotes] = React.useState(encounter.clinicalNotes);
   const [chiefComplaint, setChiefComplaint] = React.useState(encounter.chiefComplaint);
   const [finalDiagnosis, setFinalDiagnosis] = React.useState("I10 - Tăng huyết áp nguyên phát / Rối loạn lipid máu");
@@ -83,10 +102,10 @@ export function ClinicalWorkspace() {
     "Cơn tăng huyết áp giai đoạn 2 có biến đổi dày thất trái nhẹ trên ECG. Đáp ứng kiểm soát tốt với thuốc phối hợp hạ áp và điều chỉnh lối sống. Hẹn tái khám sau 4 tuần hoặc khi có dấu hiệu bất thường."
   );
 
-  const handleConfirmDiagnosticOrders = () => {
-    submitOrderRound();
-    openPrintModal("payment-slip");
-    showToast("Đã xác nhận chỉ định CLS Đợt 1! Mời in Phiếu thanh toán dịch vụ gửi người bệnh.");
+  const handleConfirmDiagnosticOrders = (round: number = 1) => {
+    submitOrderRound(round);
+    handleOpenPaymentDialog(round);
+    showToast(`Đã xác nhận y lệnh Đợt ${round}! Tiến hành thu phí cận lâm sàng tại phòng bác sĩ.`);
   };
 
   const handleIssuePrescription = () => {
@@ -318,24 +337,49 @@ export function ClinicalWorkspace() {
                   <span className="font-bold text-xs text-blue-950">
                     ĐỢT CHỈ ĐỊNH 1 — Thường quy ban đầu
                   </span>
-                  <Badge variant="secondary" className="text-[10px] bg-blue-100 text-blue-800 font-bold">
-                    {round1Orders.length} dịch vụ
+                  <Badge variant={isRound1Authorized ? "success" : "warn"} className="text-[10px] font-bold">
+                    {isRound1Authorized ? "✓ ĐÃ THANH TOÁN (AUTHORIZED)" : "CHƯA THANH TOÁN"}
                   </Badge>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    ({round1Orders.length} dịch vụ)
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-bold text-slate-700">
-                    Tổng chi phí Đợt 1: <b className="text-blue-900">{formatCurrencyVND(round1Total)}</b>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono text-xs font-bold text-slate-700 mr-1">
+                    Tổng: <b className="text-blue-900">{formatCurrencyVND(round1Total)}</b>
                   </span>
+
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => openServicePicker(1)}
-                    className="h-6 px-2 text-[11px] font-bold border-blue-300 text-blue-700 hover:bg-blue-100 bg-white"
+                    className="h-7 px-2 text-[11px] font-bold border-blue-300 text-blue-700 hover:bg-blue-100 bg-white"
                   >
                     <Plus className="w-3 h-3 mr-0.5" />
                     Thêm dịch vụ
                   </Button>
+
+                  {!isRound1Authorized ? (
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenPaymentDialog(1)}
+                      className="h-7 px-2.5 text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                    >
+                      <Banknote className="w-3.5 h-3.5 mr-1" />
+                      Thu phí CLS Đợt 1
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openPrintModal("routing", 1)}
+                      className="h-7 px-2.5 text-[11px] font-bold border-emerald-400 text-emerald-800 hover:bg-emerald-50 bg-white shadow-xs"
+                    >
+                      <Printer className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                      In Phiếu chỉ định CLS & Lộ trình
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -372,7 +416,11 @@ export function ClinicalWorkspace() {
                         variant={ord.paymentAuthorizationStatus === "AUTHORIZED" ? "success" : "warn"}
                         className="text-[10px] font-bold"
                       >
-                        {ord.paymentAuthorizationStatus === "AUTHORIZED" ? "ĐÃ THANH TOÁN (AUTHORIZED)" : "CHỜ THANH TOÁN"}
+                        {ord.paymentAuthorizationStatus === "AUTHORIZED"
+                          ? "AUTHORIZED"
+                          : ord.paymentAuthorizationStatus === "WAIVED"
+                          ? "WAIVED"
+                          : "CHỜ THU TIỀN"}
                       </Badge>
                       <button
                         type="button"
@@ -402,23 +450,49 @@ export function ClinicalWorkspace() {
                     <span className="font-bold text-xs text-purple-950">
                       ĐỢT CHỈ ĐỊNH 2 — Bổ sung sau hội chẩn
                     </span>
-                    <Badge variant="purple" className="text-[10px]">
-                      {round2Orders.length} dịch vụ
+                    <Badge variant={isRound2Authorized ? "success" : "warn"} className="text-[10px] font-bold">
+                      {isRound2Authorized ? "✓ ĐÃ THANH TOÁN (AUTHORIZED)" : "CHƯA THANH TOÁN"}
                     </Badge>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-slate-700">
-                      Tổng chi phí Đợt 2: <b className="text-purple-900">{formatCurrencyVND(round2Total)}</b>
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      ({round2Orders.length} dịch vụ)
                     </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-xs font-bold text-slate-700 mr-1">
+                      Tổng: <b className="text-purple-900">{formatCurrencyVND(round2Total)}</b>
+                    </span>
+
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => openServicePicker(2)}
-                      className="h-6 px-2 text-[11px] font-bold border-purple-300 text-purple-700 hover:bg-purple-100 bg-white"
+                      className="h-7 px-2 text-[11px] font-bold border-purple-300 text-purple-700 hover:bg-purple-100 bg-white"
                     >
                       <Plus className="w-3 h-3 mr-0.5" />
                       Thêm dịch vụ Đợt 2
                     </Button>
+
+                    {!isRound2Authorized ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleOpenPaymentDialog(2)}
+                        className="h-7 px-2.5 text-[11px] font-bold bg-purple-700 hover:bg-purple-800 text-white shadow-xs"
+                      >
+                        <Banknote className="w-3.5 h-3.5 mr-1" />
+                        Thu phí CLS Đợt 2
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openPrintModal("routing", 2)}
+                        className="h-7 px-2.5 text-[11px] font-bold border-purple-300 text-purple-800 hover:bg-purple-50 bg-white shadow-xs"
+                      >
+                        <Printer className="w-3.5 h-3.5 mr-1 text-purple-600" />
+                        In Phiếu chỉ định CLS Đợt 2
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -449,8 +523,11 @@ export function ClinicalWorkspace() {
                           <span className="font-mono font-bold text-slate-900">
                             {formatCurrencyVND(ord.price)}
                           </span>
-                          <Badge variant="warn" className="text-[10px] font-bold">
-                            CHỜ THANH TOÁN (GATE)
+                          <Badge
+                            variant={ord.paymentAuthorizationStatus === "AUTHORIZED" ? "success" : "warn"}
+                            className="text-[10px] font-bold"
+                          >
+                            {ord.paymentAuthorizationStatus === "AUTHORIZED" ? "AUTHORIZED" : "CHỜ THU TIỀN"}
                           </Badge>
                           <button
                             type="button"
@@ -467,7 +544,7 @@ export function ClinicalWorkspace() {
               </div>
             )}
 
-            {/* Action Card: Print Payment Slip */}
+            {/* Action Card: Doctor Room Diagnostic Payment & Routing Sheet */}
             <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
               <div>
                 <div className="font-black text-sm text-white flex items-center gap-2">
@@ -475,18 +552,30 @@ export function ClinicalWorkspace() {
                   <span className="text-emerald-400 font-mono text-base">{formatCurrencyVND(totalCLS)}</span>
                 </div>
                 <div className="text-slate-300 mt-0.5">
-                  Bác sĩ in <b>Phiếu thanh toán dịch vụ</b> để bệnh nhân ra Quầy thu ngân nộp tiền
+                  Phí cận lâm sàng được thu trực tiếp ngay tại phòng bác sĩ (Tiền mặt / VietQR / POS) trước khi người bệnh đi làm dịch vụ.
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
+                {(!isRound1Authorized || (orderRound >= 2 && !isRound2Authorized)) && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleOpenPaymentDialog(orderRound)}
+                    className="font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-4 shadow-md"
+                  >
+                    <Banknote className="w-4 h-4 mr-1.5" />
+                    Thu phí Cận lâm sàng tại phòng bác sĩ
+                  </Button>
+                )}
+
                 <Button
                   size="sm"
-                  onClick={handleConfirmDiagnosticOrders}
-                  className="font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-4 shadow-md"
+                  variant="outline"
+                  onClick={() => openPrintModal("routing", orderRound)}
+                  className="font-bold text-xs border-slate-600 text-slate-200 hover:text-white hover:bg-slate-800 bg-transparent h-10 px-3"
                 >
                   <Printer className="w-4 h-4 mr-1.5" />
-                  Xác nhận & In Phiếu thanh toán dịch vụ CLS
+                  In Phiếu chỉ định CLS & Lộ trình
                 </Button>
               </div>
             </div>
@@ -786,6 +875,13 @@ export function ClinicalWorkspace() {
           </CardFooter>
         </Card>
       )}
+
+      {/* Doctor Room Diagnostic Payment Dialog */}
+      <DiagnosticPaymentDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        round={paymentTargetRound}
+      />
     </div>
   );
 }
