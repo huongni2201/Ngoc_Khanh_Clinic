@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUIStore } from "@/shared/stores/ui.store";
 import { useWorkspaceStore } from "@/shared/stores/workspace.store";
-import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import { MOCK_ACTIVE_ENCOUNTER, MOCK_LAB_RESULTS, MOCK_ECG_RESULT } from "@/shared/constants/mock-data";
 import { formatCurrencyVND } from "@/shared/lib/formatters";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/shared/ui/card";
@@ -33,6 +33,7 @@ import {
   Clock,
   Sparkles,
   Layers,
+  ExternalLink,
 } from "lucide-react";
 
 export function ClinicalWorkspace() {
@@ -53,16 +54,19 @@ export function ClinicalWorkspace() {
     patientName,
     patientCode,
     encounterCode,
-    isPrescriptionIssued,
+    journeyStage,
+    prescriptionIssued,
     rxCode,
-    isAppointmentBooked,
+    appointmentCreated,
     appointmentCode,
     labStatus,
     imagingStatus,
+    submitOrderRound,
     issuePrescription,
-    bookAppointment,
+    createFollowUpAppointment,
     completeEncounter,
-  } = useDemoJourneyStore();
+    startConclusion,
+  } = useDemoClinicFlowStore();
 
   const encounter = MOCK_ACTIVE_ENCOUNTER;
 
@@ -74,10 +78,16 @@ export function ClinicalWorkspace() {
 
   const [notes, setNotes] = React.useState(encounter.clinicalNotes);
   const [chiefComplaint, setChiefComplaint] = React.useState(encounter.chiefComplaint);
-  const [finalDiagnosis, setFinalDiagnosis] = React.useState("I10 - Tăng huyết áp nguyên phát / Rối loạn tuần hoàn não do xơ vữa");
+  const [finalDiagnosis, setFinalDiagnosis] = React.useState("I10 - Tăng huyết áp nguyên phát / Rối loạn lipid máu");
   const [finalConclusion, setFinalConclusion] = React.useState(
-    "Cơn tăng huyết áp giai đoạn 2 có biến đổi dày thất trái trên ECG. Đáp ứng kiểm soát tốt với thuốc phối hợp hạ áp và điều chỉnh lối sống. Hẹn tái khám sau 4 tuần hoặc khi có dấu hiệu bất thường."
+    "Cơn tăng huyết áp giai đoạn 2 có biến đổi dày thất trái nhẹ trên ECG. Đáp ứng kiểm soát tốt với thuốc phối hợp hạ áp và điều chỉnh lối sống. Hẹn tái khám sau 4 tuần hoặc khi có dấu hiệu bất thường."
   );
+
+  const handleConfirmDiagnosticOrders = () => {
+    submitOrderRound();
+    openPrintModal("payment-slip");
+    showToast("Đã xác nhận chỉ định CLS Đợt 1! Mời in Phiếu thanh toán dịch vụ gửi người bệnh.");
+  };
 
   const handleIssuePrescription = () => {
     issuePrescription();
@@ -85,7 +95,7 @@ export function ClinicalWorkspace() {
   };
 
   const handleBookAppointment = () => {
-    bookAppointment();
+    createFollowUpAppointment();
     showToast("Đã lập lịch hẹn tái khám ngày 17/10/2026 và tự động lên lịch nhắc qua Zalo OA!");
   };
 
@@ -123,7 +133,7 @@ export function ClinicalWorkspace() {
         >
           <FlaskConical className="w-3.5 h-3.5" />
           <span>2. Chỉ định CLS</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-mono">
+          <span className="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 text-[10px] font-mono font-bold">
             {orders.length}
           </span>
         </button>
@@ -168,7 +178,7 @@ export function ClinicalWorkspace() {
                 1. Khám lâm sàng & Sinh hiệu tại phòng khám (P.203)
               </CardTitle>
             </div>
-            <span className="text-xs text-slate-500 font-mono">BS. Lê Minh • 17/09/2026 08:35</span>
+            <span className="text-xs text-slate-500 font-mono">BS. Lê Minh • 19/09/2026 08:35</span>
           </CardHeader>
 
           <CardContent className="p-5 space-y-4">
@@ -235,13 +245,25 @@ export function ClinicalWorkspace() {
             </div>
           </CardContent>
 
-          <CardFooter className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+          <CardFooter className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setActiveTab("CONCLUSION");
+                showToast("Bác sĩ chọn: Không cần CLS → Chuyển sang Kết luận & Kê đơn ngay.");
+              }}
+              className="text-xs font-bold text-slate-700 hover:text-clinic-blue"
+            >
+              Không cần CLS → Kết luận ngay
+            </Button>
+
             <Button
               size="sm"
               onClick={() => setActiveTab("ORDERS")}
               className="font-bold text-xs bg-clinic-blue hover:bg-blue-700 text-white"
             >
-              <span>Chuyển sang: Chỉ định Cận lâm sàng</span>
+              <span>+ Chỉ định Cận lâm sàng</span>
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </CardFooter>
@@ -256,10 +278,10 @@ export function ClinicalWorkspace() {
               <FlaskConical className="w-4 h-4 text-purple-600" />
               <div>
                 <CardTitle className="text-sm font-bold text-slate-800">
-                  2. Chỉ định Cận lâm sàng đa đợt (Multiple Order Rounds)
+                  2. Chỉ định Cận lâm sàng & Phiếu thanh toán dịch vụ
                 </CardTitle>
                 <p className="text-[11px] text-slate-500">
-                  Phân bổ phòng thực hiện, xuất in phiếu lộ trình di chuyển và hóa đơn tạm thu VietQR
+                  Bác sĩ tạo đợt chỉ định, in phiếu thanh toán cho bệnh nhân nộp phí trước khi thực hiện
                 </p>
               </div>
             </div>
@@ -274,12 +296,12 @@ export function ClinicalWorkspace() {
                   variant="outline"
                   onClick={() => {
                     createNewRound();
-                    showToast("Đã kích hoạt Đợt 2 (Chỉ định bổ sung sau khi hội chẩn).");
+                    showToast("Đã khởi tạo Đợt 2 (Chỉ định bổ sung sau kết quả đợt 1).");
                   }}
                   className="h-7 text-xs font-bold border-purple-300 text-purple-700 hover:bg-purple-50 shadow-xs"
                 >
                   <PlusCircle className="w-3.5 h-3.5 mr-1 text-purple-600" />
-                  + Khởi tạo Đợt 2 (Bổ sung)
+                  + Tạo đợt chỉ định 2
                 </Button>
               )}
             </div>
@@ -294,7 +316,7 @@ export function ClinicalWorkspace() {
                     1
                   </span>
                   <span className="font-bold text-xs text-blue-950">
-                    Đợt 1 — Chỉ định Thường quy Ban đầu
+                    ĐỢT CHỈ ĐỊNH 1 — Thường quy ban đầu
                   </span>
                   <Badge variant="secondary" className="text-[10px] bg-blue-100 text-blue-800 font-bold">
                     {round1Orders.length} dịch vụ
@@ -303,7 +325,7 @@ export function ClinicalWorkspace() {
 
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs font-bold text-slate-700">
-                    Tổng đợt 1: <b className="text-blue-900">{formatCurrencyVND(round1Total)}</b>
+                    Tổng chi phí Đợt 1: <b className="text-blue-900">{formatCurrencyVND(round1Total)}</b>
                   </span>
                   <Button
                     size="sm"
@@ -312,7 +334,7 @@ export function ClinicalWorkspace() {
                     className="h-6 px-2 text-[11px] font-bold border-blue-300 text-blue-700 hover:bg-blue-100 bg-white"
                   >
                     <Plus className="w-3 h-3 mr-0.5" />
-                    Thêm dịch vụ Đợt 1
+                    Thêm dịch vụ
                   </Button>
                 </div>
               </div>
@@ -332,7 +354,7 @@ export function ClinicalWorkspace() {
                       </div>
                       <div className="text-[11px] text-slate-600 flex items-center gap-2 flex-wrap">
                         <span>
-                          Địa điểm: <b className="text-clinic-blue font-bold">{ord.roomName}</b> ({ord.roomCode} — {ord.floor})
+                          Phòng: <b className="text-clinic-blue font-bold">{ord.roomName}</b> ({ord.roomCode} — {ord.floor})
                         </span>
                         {ord.preparationInstructions && (
                           <span className="text-slate-500 italic truncate max-w-md">
@@ -359,7 +381,7 @@ export function ClinicalWorkspace() {
                           showToast(`Đã xóa [${ord.serviceCode}]`);
                         }}
                         className="p-1 rounded text-slate-400 hover:text-red-600 transition-colors"
-                        title="Xóa chỉ định này"
+                        title="Xóa dịch vụ này"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -378,7 +400,7 @@ export function ClinicalWorkspace() {
                       2
                     </span>
                     <span className="font-bold text-xs text-purple-950">
-                      Đợt 2 — Chỉ định Bổ sung
+                      ĐỢT CHỈ ĐỊNH 2 — Bổ sung sau hội chẩn
                     </span>
                     <Badge variant="purple" className="text-[10px]">
                       {round2Orders.length} dịch vụ
@@ -386,7 +408,7 @@ export function ClinicalWorkspace() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-xs font-bold text-slate-700">
-                      Tổng đợt 2: <b className="text-purple-900">{formatCurrencyVND(round2Total)}</b>
+                      Tổng chi phí Đợt 2: <b className="text-purple-900">{formatCurrencyVND(round2Total)}</b>
                     </span>
                     <Button
                       size="sm"
@@ -403,7 +425,7 @@ export function ClinicalWorkspace() {
                 <div className="p-3 space-y-2">
                   {round2Orders.length === 0 ? (
                     <div className="text-center py-4 text-xs text-slate-400 italic">
-                      Chưa có dịch vụ nào trong Đợt 2. Bấm "+ Thêm dịch vụ Đợt 2" để chọn.
+                      Chưa có dịch vụ nào trong Đợt 2. Bấm "+ Thêm dịch vụ Đợt 2" để chỉ định.
                     </div>
                   ) : (
                     round2Orders.map((ord) => (
@@ -419,7 +441,7 @@ export function ClinicalWorkspace() {
                             <span className="font-bold text-slate-900">{ord.serviceName}</span>
                           </div>
                           <div className="text-[11px] text-slate-600">
-                            Địa điểm: <b>{ord.roomName}</b> ({ord.roomCode} — {ord.floor})
+                            Phòng: <b>{ord.roomName}</b> ({ord.roomCode} — {ord.floor})
                           </div>
                         </div>
 
@@ -445,33 +467,26 @@ export function ClinicalWorkspace() {
               </div>
             )}
 
-            {/* Medical Print Triggers Bar */}
+            {/* Action Card: Print Payment Slip */}
             <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
               <div>
-                <div className="font-black text-sm">XUẤT BIỂU MẪU Y TẾ CHO BỆNH NHÂN</div>
+                <div className="font-black text-sm text-white flex items-center gap-2">
+                  <span>TỔNG CHI PHÍ CẬN LÂM SÀNG:</span>
+                  <span className="text-emerald-400 font-mono text-base">{formatCurrencyVND(totalCLS)}</span>
+                </div>
                 <div className="text-slate-300 mt-0.5">
-                  Tổng chi phí CLS: <b className="text-blue-400 font-mono">{formatCurrencyVND(totalCLS)}</b> (Chưa tính công khám 150.000đ)
+                  Bác sĩ in <b>Phiếu thanh toán dịch vụ</b> để bệnh nhân ra Quầy thu ngân nộp tiền
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => openPrintModal("routing")}
-                  className="font-bold text-xs bg-white text-slate-900 hover:bg-slate-100 h-9"
+                  onClick={handleConfirmDiagnosticOrders}
+                  className="font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-4 shadow-md"
                 >
-                  <Printer className="w-3.5 h-3.5 mr-1.5 text-clinic-blue" />
-                  In Phiếu chỉ định CLS & Lộ trình phòng
-                </Button>
-
-                <Button
-                  size="sm"
-                  onClick={() => openPrintModal("invoice")}
-                  className="font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white h-9"
-                >
-                  <Receipt className="w-3.5 h-3.5 mr-1.5" />
-                  Xuất Hóa đơn tạm thu (VietQR)
+                  <Printer className="w-4 h-4 mr-1.5" />
+                  Xác nhận & In Phiếu thanh toán dịch vụ CLS
                 </Button>
               </div>
             </div>
@@ -496,7 +511,7 @@ export function ClinicalWorkspace() {
       {/* TAB 3: KẾT QUẢ CẬN LÂM SÀNG (AUTO-RETURNED RESULTS) */}
       {activeTab === "RESULTS" && (
         <Card className="border-slate-200 shadow-sm bg-white animate-in fade-in duration-150">
-          <CardHeader className="bg-emerald-50/70 p-4 border-b border-emerald-200 flex flex-row items-center justify-between">
+          <CardHeader className="bg-emerald-50/70 p-4 border-b border-emerald-200 flex flex-row items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <div>
@@ -508,9 +523,27 @@ export function ClinicalWorkspace() {
                 </p>
               </div>
             </div>
-            <Badge variant="success" className="font-bold text-xs">
-              ĐÃ ĐỦ 3/3 KẾT QUẢ
-            </Badge>
+
+            <div className="flex items-center gap-2">
+              <Badge variant="success" className="font-bold text-xs">
+                ĐÃ ĐỦ 3/3 KẾT QUẢ (FINAL)
+              </Badge>
+              {orderRound < 2 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    createNewRound();
+                    setActiveTab("ORDERS");
+                    showToast("Đã tạo Đợt chỉ định 2 bổ sung!");
+                  }}
+                  className="h-7 text-xs font-bold border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  <PlusCircle className="w-3.5 h-3.5 mr-1" />
+                  + Tạo chỉ định bổ sung (Đợt 2)
+                </Button>
+              )}
+            </div>
           </CardHeader>
 
           <CardContent className="p-5 space-y-6">
@@ -519,9 +552,9 @@ export function ClinicalWorkspace() {
               <div className="p-3 bg-slate-100/70 border-b border-slate-200 font-bold text-xs text-slate-800 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <FlaskConical className="w-3.5 h-3.5 text-purple-600" />
-                  XÉT NGHIỆM HUYẾT HỌC & HÓA SINH (P.202 — KTV. Nguyễn Đức Hải duyệt)
+                  XÉT NGHIỆM HUYẾT HỌC & HÓA SINH (P.202 — KTV. Trần Thu Hà duyệt)
                 </span>
-                <span className="text-emerald-700 font-bold">✓ Đã duyệt Final</span>
+                <span className="text-emerald-700 font-bold">✓ Đã duyệt Final lúc 09:15</span>
               </div>
 
               <table className="w-full text-xs">
@@ -574,7 +607,7 @@ export function ClinicalWorkspace() {
                   <Activity className="w-4 h-4 text-clinic-blue" />
                   ĐIỆN TÂM ĐỒ (ECG): {MOCK_ECG_RESULT.serviceName}
                 </span>
-                <span className="text-emerald-700 font-bold">✓ KTV. Vũ Tuấn (P.208)</span>
+                <span className="text-emerald-700 font-bold">✓ KTV. Vũ Tuấn (P.208) lúc 09:05</span>
               </div>
               <div className="p-3 bg-white rounded-xl border border-slate-200 text-slate-800 font-medium leading-relaxed">
                 <b className="text-slate-900">Kết luận chuyên môn: </b>
@@ -608,7 +641,7 @@ export function ClinicalWorkspace() {
                 4. Kết luận chẩn đoán, Kê đơn điều trị & Lịch hẹn
               </CardTitle>
               <p className="text-[11px] text-slate-500">
-                Phát hành đơn thuốc điện tử an toàn dị ứng, sinh mã QR cấp phát và đặt lịch tái khám
+                Phát hành đơn thuốc điện tử an toàn dị ứng, xuất in đơn thuốc và đặt lịch tái khám
               </p>
             </div>
             <Badge variant="purple" className="font-bold font-mono">
@@ -673,7 +706,7 @@ export function ClinicalWorkspace() {
               </div>
 
               {/* Prescription Issued Notification Card */}
-              {isPrescriptionIssued ? (
+              {prescriptionIssued ? (
                 <div className="p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl flex items-center justify-between gap-4 animate-in zoom-in-95">
                   <div className="space-y-1">
                     <div className="font-black text-emerald-950 flex items-center gap-1.5 text-sm">
@@ -681,12 +714,25 @@ export function ClinicalWorkspace() {
                       ĐƠN THUỐC ĐIỆN TỬ ĐÃ ĐƯỢC KÝ DUYỆT & PHÁT HÀNH
                     </div>
                     <div className="text-xs text-emerald-800">
-                      Mã đơn thuốc: <b className="font-mono text-emerald-950">{rxCode}</b>. Dược sĩ tại Quầy thuốc chỉ cần quét mã QR để lấy đúng đơn mà không phải gõ lại bất kỳ chữ nào.
+                      Mã đơn thuốc: <b className="font-mono text-emerald-950">{rxCode}</b>. Đơn thuốc đã được đồng bộ vào Cổng thông tin người bệnh và sẵn sàng in ấn.
                     </div>
                   </div>
-                  <div className="w-16 h-16 bg-slate-900 text-white rounded-xl flex flex-col items-center justify-center font-mono font-bold text-[9px] shrink-0 shadow-md">
-                    <QrCode className="w-8 h-8 text-white mb-0.5" />
-                    RX-018
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => showToast(`Đang in đơn thuốc ${rxCode}...`)}
+                      className="font-bold text-xs border-emerald-400 text-emerald-900 bg-white hover:bg-emerald-100"
+                    >
+                      <Printer className="w-3.5 h-3.5 mr-1" />
+                      In đơn thuốc
+                    </Button>
+                    <Link href="/portal">
+                      <Button size="sm" variant="ghost" className="font-bold text-xs text-emerald-900">
+                        <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                        Xem trên Portal
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ) : (
@@ -694,8 +740,8 @@ export function ClinicalWorkspace() {
                   onClick={handleIssuePrescription}
                   className="w-full font-bold text-xs bg-purple-700 hover:bg-purple-800 text-white h-10 shadow-sm"
                 >
-                  <QrCode className="w-4 h-4 mr-2" />
-                  Ký duyệt & Phát hành Đơn thuốc điện tử (Mã QR)
+                  <FileCheck className="w-4 h-4 mr-2" />
+                  Ký duyệt & Phát hành Đơn thuốc điện tử ({rxCode})
                 </Button>
               )}
             </div>
@@ -707,7 +753,7 @@ export function ClinicalWorkspace() {
                   LỊCH TÁI KHÁM THEO DÕI
                 </span>
                 <span className="font-bold text-slate-900 text-xs">
-                  {isAppointmentBooked
+                  {appointmentCreated
                     ? `Đã lên lịch hẹn: 17/10/2026 (Thứ Bảy, 08:30) — ${appointmentCode}`
                     : "Hẹn tái khám sau 4 tuần để đánh giá đáp ứng hạ áp"}
                 </span>
@@ -715,12 +761,12 @@ export function ClinicalWorkspace() {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={isAppointmentBooked}
+                disabled={appointmentCreated}
                 onClick={handleBookAppointment}
                 className="font-bold text-xs border-blue-300 text-clinic-blue bg-white hover:bg-blue-50 self-start sm:self-auto"
               >
                 <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                {isAppointmentBooked ? "Đã đặt lịch hẹn ✓" : "Tạo lịch tái khám từ Encounter"}
+                {appointmentCreated ? "Đã đặt lịch hẹn ✓" : "Tạo lịch tái khám từ Encounter"}
               </Button>
             </div>
           </CardContent>

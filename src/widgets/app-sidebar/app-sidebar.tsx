@@ -14,15 +14,12 @@ import {
   FlaskConical,
   Activity,
   CreditCard,
-  Building2,
   Calendar,
   Settings,
   Menu,
-  Pill,
   Smartphone,
   BarChart3,
   Eye,
-  Ticket,
   ClipboardList,
 } from "lucide-react";
 
@@ -50,10 +47,10 @@ export function AppSidebar() {
       title: "TỔNG QUAN",
       items: [
         {
-          label: "Dashboard điều hành",
+          label: "Dashboard",
           href: "/dashboard",
           icon: LayoutDashboard,
-          roles: ["ALL", "RECEPTIONIST", "MANAGER", "ADMIN"],
+          roles: ["ALL", "FRONT_DESK", "MANAGER", "ADMIN"],
         },
       ],
     },
@@ -61,36 +58,22 @@ export function AppSidebar() {
       title: "TIẾP ĐÓN",
       items: [
         {
-          label: "Lấy số Kiosk",
-          href: "/check-in",
-          icon: Ticket,
-          badge: "Kiosk",
-          roles: ["ALL", "RECEPTIONIST", "MANAGER"],
-        },
-        {
-          label: "Tiếp nhận & Lượt khám",
+          label: "Tiếp nhận & Thu phí khám",
           href: "/reception",
           icon: UserPlus,
-          roles: ["ALL", "RECEPTIONIST", "MANAGER"],
+          roles: ["ALL", "FRONT_DESK", "MANAGER"],
         },
         {
-          label: "Tra cứu bệnh nhân",
+          label: "Bệnh nhân",
           href: "/patients",
           icon: Users,
-          roles: ["ALL", "RECEPTIONIST", "DOCTOR", "CASHIER", "MANAGER"],
+          roles: ["ALL", "FRONT_DESK", "DOCTOR", "MANAGER"],
         },
         {
-          label: "Tạo mới hồ sơ",
-          href: "/patients/new",
-          icon: UserPlus,
-          badge: "Mới",
-          roles: ["ALL", "RECEPTIONIST"],
-        },
-        {
-          label: "Lịch hẹn & Tái khám",
+          label: "Lịch hẹn",
           href: "/appointments",
           icon: Calendar,
-          roles: ["ALL", "RECEPTIONIST", "DOCTOR", "MANAGER"],
+          roles: ["ALL", "FRONT_DESK", "DOCTOR", "MANAGER"],
         },
       ],
     },
@@ -98,14 +81,14 @@ export function AppSidebar() {
       title: "KHÁM BỆNH",
       items: [
         {
-          label: "Hàng đợi bác sĩ",
+          label: "Danh sách chờ khám",
           href: "/clinical",
           icon: Stethoscope,
           roles: ["ALL", "DOCTOR"],
         },
         {
-          label: "Khám lâm sàng",
-          href: "/encounters/ENC-260917-032",
+          label: "Khám bệnh",
+          href: "/encounters/ENC-260919-041",
           icon: Activity,
           roles: ["ALL", "DOCTOR"],
         },
@@ -121,7 +104,7 @@ export function AppSidebar() {
           roles: ["ALL", "LAB_TECH"],
         },
         {
-          label: "Chẩn đoán hình ảnh & ECG",
+          label: "Chẩn đoán hình ảnh",
           href: "/imaging",
           icon: Activity,
           roles: ["ALL", "IMAGING_TECH", "DOCTOR"],
@@ -129,53 +112,39 @@ export function AppSidebar() {
       ],
     },
     {
-      title: "THANH TOÁN & DƯỢC",
+      title: "THANH TOÁN",
       items: [
         {
-          label: "Thu ngân & Viện phí",
+          label: "Thanh toán dịch vụ CLS",
           href: "/billing",
           icon: CreditCard,
-          roles: ["ALL", "CASHIER", "MANAGER"],
-        },
-        {
-          label: "Quầy thuốc & Cấp phát",
-          href: "/pharmacy",
-          icon: Pill,
-          badge: "Rx",
-          roles: ["ALL", "PHARMACIST"],
-        },
-        {
-          label: "Khám SK Doanh nghiệp",
-          href: "/health-check",
-          icon: Building2,
-          badge: "Đề xuất",
-          roles: ["ALL", "RECEPTIONIST", "CASHIER", "MANAGER"],
+          roles: ["ALL", "FRONT_DESK", "MANAGER"],
         },
       ],
     },
     {
-      title: "NGƯỜI BỆNH",
+      title: "BỆNH NHÂN",
       items: [
         {
           label: "Cổng thông tin bệnh nhân",
           href: "/portal",
           icon: Smartphone,
           badge: "Portal",
-          roles: ["ALL", "RECEPTIONIST", "DOCTOR"],
+          roles: ["ALL", "FRONT_DESK", "DOCTOR"],
         },
       ],
     },
     {
-      title: "QUẢN TRỊ",
+      title: "QUẢN LÝ",
       items: [
         {
-          label: "Báo cáo vận hành & SLA",
+          label: "Báo cáo",
           href: "/reports",
           icon: BarChart3,
           roles: ["ALL", "MANAGER", "ADMIN"],
         },
         {
-          label: "Cài đặt hệ thống",
+          label: "Cài đặt",
           href: "/settings",
           icon: Settings,
           roles: ["ALL", "ADMIN"],
@@ -275,8 +244,6 @@ export function AppSidebar() {
                       className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-black ${
                         isActive
                           ? "bg-white text-clinic-blue shadow-xs"
-                          : item.badge === "Đề xuất"
-                          ? "bg-amber-950 text-amber-300 border border-amber-700"
                           : "bg-blue-950 text-blue-300 border border-blue-800"
                       }`}
                     >

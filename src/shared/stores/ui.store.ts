@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+export type PrintModalTab = "payment-slip" | "routing" | "invoice";
+
 interface UIState {
   isSidebarCollapsed: boolean;
   toggleSidebar: () => void;
@@ -11,11 +13,11 @@ interface UIState {
 
   // Medical Print Modal state
   isPrintModalOpen: boolean;
-  printModalTab: "routing" | "invoice";
+  printModalTab: PrintModalTab;
   printModalRound: number;
-  openPrintModal: (tab?: "routing" | "invoice", round?: number) => void;
+  openPrintModal: (tab?: PrintModalTab, round?: number) => void;
   closePrintModal: () => void;
-  setPrintModalTab: (tab: "routing" | "invoice") => void;
+  setPrintModalTab: (tab: PrintModalTab) => void;
   setPrintModalRound: (round: number) => void;
 
   // Global Toast
@@ -33,9 +35,9 @@ export const useUIStore = create<UIState>((set) => ({
   closePatientDrawer: () => set({ drawerPatientId: null }),
 
   isPrintModalOpen: false,
-  printModalTab: "routing",
+  printModalTab: "payment-slip",
   printModalRound: 1,
-  openPrintModal: (tab = "routing", round = 1) =>
+  openPrintModal: (tab = "payment-slip", round = 1) =>
     set({ isPrintModalOpen: true, printModalTab: tab, printModalRound: round }),
   closePrintModal: () => set({ isPrintModalOpen: false }),
   setPrintModalTab: (tab) => set({ printModalTab: tab }),

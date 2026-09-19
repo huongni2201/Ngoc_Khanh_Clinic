@@ -1,4 +1,10 @@
+export type EncounterLifecycleStatus =
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELED";
+
 export type EncounterStatus =
+  | "IN_PROGRESS"
   | "WAITING_FOR_EXAM"
   | "IN_EXAM"
   | "ORDERED"
@@ -9,7 +15,34 @@ export type EncounterStatus =
   | "RESULTS_COMPLETE"
   | "WAITING_FOR_CONCLUSION"
   | "PRESCRIPTION_READY"
-  | "COMPLETED";
+  | "COMPLETED"
+  | "CANCELED";
+
+export type JourneyStage =
+  | "REGISTERED"
+  | "WAITING_FOR_DOCTOR"
+  | "IN_EXAM"
+  | "WAITING_FOR_DIAGNOSTIC_PAYMENT"
+  | "WAITING_FOR_DIAGNOSTIC"
+  | "DIAGNOSTIC_IN_PROGRESS"
+  | "WAITING_FOR_RESULTS"
+  | "WAITING_FOR_CONCLUSION"
+  | "IN_CONCLUSION"
+  | "COMPLETED"
+  | "CANCELED";
+
+export type ServiceRequestStatus =
+  | "ORDERED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELED";
+
+export type PaymentAuthorizationStatus =
+  | "NOT_REQUIRED"
+  | "PENDING"
+  | "AUTHORIZED"
+  | "WAIVED"
+  | "REVOKED";
 
 export interface EncounterOrder {
   round: number;
@@ -18,13 +51,15 @@ export interface EncounterOrder {
   roomCode: string;
   roomName: string;
   price: number;
+  serviceRequestStatus?: ServiceRequestStatus;
+  paymentAuthorizationStatus?: PaymentAuthorizationStatus;
   status: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED";
 }
 
 export interface Encounter {
   id: string;
   encounterCode: string;
-  queueNumber: string;
+  queueNumber?: string;
   patientId: string;
   patientCode: string;
   patientName: string;

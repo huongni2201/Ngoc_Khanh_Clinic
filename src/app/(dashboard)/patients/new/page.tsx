@@ -9,6 +9,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Badge } from "@/shared/ui/badge";
 import { useUIStore } from "@/shared/stores/ui.store";
+import { MOCK_PATIENTS, MockPatient } from "@/shared/constants/mock-data";
 import {
   UserPlus,
   ArrowLeft,
@@ -23,6 +24,7 @@ import {
   MapPin,
   FileCheck,
   AlertCircle,
+  AlertTriangle,
   Copy,
   Loader2,
   Server,
@@ -73,9 +75,12 @@ export default function NewPatientPage() {
     return "PT-2609-0891";
   }, []);
 
+  const [duplicateWarning, setDuplicateWarning] = React.useState<MockPatient | null>(null);
+  const [pendingRedirect, setPendingRedirect] = React.useState<"reception" | "patients">("reception");
+
   // Quick Preset Handlers
   const handleLoadPresetNormal = () => {
-    setBackendConflictError(null);
+    setDuplicateWarning(null);
     setFormData({
       fullName: "TRẦN THỊ MAI",
       dob: "1995-08-20",
@@ -97,7 +102,7 @@ export default function NewPatientPage() {
   };
 
   const handleLoadPresetAllergy = () => {
-    setBackendConflictError(null);
+    setDuplicateWarning(null);
     setFormData({
       fullName: "NGUYỄN MINH TUẤN",
       dob: "1986-12-05",
@@ -119,7 +124,7 @@ export default function NewPatientPage() {
   };
 
   const handleLoadPresetDuplicateTest = () => {
-    setBackendConflictError(null);
+    setDuplicateWarning(null);
     setFormData({
       fullName: "NGUYỄN VĂN AN",
       dob: "1981-04-12",
@@ -141,7 +146,7 @@ export default function NewPatientPage() {
   };
 
   const handleClearForm = () => {
-    setBackendConflictError(null);
+    setDuplicateWarning(null);
     setFormData({
       fullName: "",
       dob: "",
@@ -162,7 +167,6 @@ export default function NewPatientPage() {
     showToast("Đã làm trống biểu mẫu nhập liệu");
   };
 
-  // Submit to Backend API (Zero UI duplicate checking; fully validated by Backend)
   const handleSubmitAndCheckIn = (e: React.FormEvent) => {
     e.preventDefault();
     handleBackendSubmit("reception");
@@ -173,46 +177,52 @@ export default function NewPatientPage() {
     handleBackendSubmit("patients");
   };
 
+  const executeCreatePatient = (redirectTarget: "reception" | "patients") => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      if (redirectTarget === "reception") {
+        showToast(`Đã tạo hồ sơ ${generatedPatientCode} — Đang chuyển sang Tiếp nhận & Thu phí khám...`);
+        setTimeout(() => {
+          router.push(`/reception?patient=${generatedPatientCode}`);
+        }, 400);
+      } else {
+        showToast(`Đã lưu thành công hồ sơ ${generatedPatientCode}`);
+        setTimeout(() => {
+          router.push("/patients");
+        }, 400);
+      }
+    }, 400);
+  };
+
   const handleBackendSubmit = (redirectTarget: "reception" | "patients") => {
     if (!formData.fullName.trim() || !formData.phone.trim()) {
       showToast("Vui lòng điền đầy đủ Họ tên và Số điện thoại bệnh nhân");
       return;
     }
 
-    setBackendConflictError(null);
-    setIsSubmitting(true);
+    setDuplicateWarning(null);
 
-    // Gửi payload tới Backend API (POST /api/v1/patients)
-    // Toàn bộ quy trình kiểm tra đối soát trùng lặp CCCD/SĐT do Backend đảm nhiệm
-    setTimeout(() => {
-      setIsSubmitting(false);
+    // Section 12 rule: same CCCD OR same phone OR same full name + DOB
+    const cleanNationalId = formData.nationalId.replace(/\s+/g, "");
+    const cleanPhone = formData.phone.replace(/\s+/g, "");
+    const cleanName = formData.fullName.trim().toLowerCase();
 
-      const cleanNationalId = formData.nationalId.replace(/\s+/g, "");
-      // Giả lập phản hồi từ Backend: Nếu CCCD trùng với bệnh nhân PT-001842 đã có trong CSDL
-      if (cleanNationalId === "001081008892") {
-        setBackendConflictError({
-          title: "Backend API từ chối: Phát hiện trùng lặp hồ sơ người bệnh (409 Conflict)",
-          message: "Số CCCD 001081008892 đã được liên kết với hồ sơ bệnh nhân trong CSDL y tế trung tâm. Backend tự động từ chối để ngăn chặn phân mảnh hồ sơ.",
-          existingId: "PT-001842",
-          existingName: "NGUYỄN VĂN AN",
-        });
-        showToast("Backend: Trùng lặp hồ sơ người bệnh (409 Conflict)!");
-        return;
-      }
+    const match = MOCK_PATIENTS.find((p) => {
+      const matchCCCD = cleanNationalId && p.identityCard.replace(/\s+/g, "") === cleanNationalId;
+      const matchPhone = cleanPhone && p.phone.replace(/\s+/g, "") === cleanPhone;
+      const matchNameDob = cleanName && formData.dob && p.fullName.toLowerCase() === cleanName && p.dateOfBirth === formData.dob;
+      return matchCCCD || matchPhone || matchNameDob;
+    });
 
-      // Backend xác thực thành công (201 Created)
-      if (redirectTarget === "reception") {
-        showToast(`Backend duyệt tạo mới ${generatedPatientCode} — Đang chuyển sang Tiếp nhận & Cấp STT...`);
-        setTimeout(() => {
-          router.push("/reception");
-        }, 400);
-      } else {
-        showToast(`Backend đã lưu thành công hồ sơ ${generatedPatientCode}`);
-        setTimeout(() => {
-          router.push("/patients");
-        }, 400);
-      }
-    }, 600);
+    if (match) {
+      setDuplicateWarning(match);
+      setPendingRedirect(redirectTarget);
+      showToast("⚠ Phát hiện hồ sơ có thể trùng lặp!");
+      return;
+    }
+
+    executeCreatePatient(redirectTarget);
   };
 
   return (
@@ -268,7 +278,83 @@ export default function NewPatientPage() {
         {/* Left Column: Comprehensive Registration Form (8 Cols) */}
         <div className="lg:col-span-8 space-y-6">
           <form onSubmit={handleSubmitAndCheckIn} className="space-y-6">
-            {/* Backend Conflict Alert Banner (Triggered only when Backend returns 409 Conflict) */}
+            {/* Section 12: Duplicate Warning UI */}
+            {duplicateWarning && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="p-5 rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-950 space-y-3 animate-in fade-in duration-200 shadow-sm"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-black text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                        ⚠ PHÁT HIỆN HỒ SƠ CÓ THỂ TRÙNG
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setDuplicateWarning(null)}
+                        className="text-xs text-amber-700 hover:text-amber-900 font-bold px-1.5 py-0.5 rounded hover:bg-amber-100"
+                        aria-label="Đóng thông báo cảnh báo trùng"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="p-3 bg-white/90 rounded-lg border border-amber-200 text-xs space-y-1">
+                      <div className="font-bold text-slate-900 text-sm">{duplicateWarning.fullName}</div>
+                      <div className="text-slate-600 flex items-center gap-2 flex-wrap">
+                        <span>{duplicateWarning.dateOfBirth}</span>
+                        <span>•</span>
+                        <span>{duplicateWarning.phone}</span>
+                        {duplicateWarning.identityCard && (
+                          <>
+                            <span>•</span>
+                            <span>CCCD: {duplicateWarning.identityCard}</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="text-slate-500 text-[11px] pt-0.5">
+                        Mã định danh: <b className="text-clinic-blue font-mono">{duplicateWarning.id}</b>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-amber-800">
+                        Mức tương đồng: <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900">Cao</span>
+                      </span>
+                    </div>
+
+                    <div className="pt-2 flex items-center gap-3 flex-wrap">
+                      <Link href={`/reception?patient=${duplicateWarning.id}`}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                          MỞ HỒ SƠ HIỆN CÓ
+                        </Button>
+                      </Link>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => executeCreatePatient(pendingRedirect)}
+                        className="text-xs font-semibold border-amber-300 text-amber-900 hover:bg-amber-100"
+                      >
+                        VẪN TẠO HỒ SƠ MỚI
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Backend Conflict Alert Banner (Fallback when Backend returns 409 Conflict) */}
             {backendConflictError && (
               <div
                 role="alert"

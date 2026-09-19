@@ -45,35 +45,21 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="font-bold text-xs text-white">Bác sĩ khám bệnh (P.203)</div>
-                <div className="text-[10px] text-slate-400">Doctor Worklist, Clinical Workspace, Kê đơn</div>
+                <div className="text-[10px] text-slate-400">Danh sách chờ, Khám lâm sàng, Chỉ định CLS, Kết luận</div>
               </div>
             </Button>
 
             <Button
               variant="outline"
-              onClick={() => handleLogin("RECEPTIONIST", "SẢNH")}
+              onClick={() => handleLogin("FRONT_DESK", "QUẦY LỄ TÂN")}
               className="justify-start h-12 bg-slate-900 border-slate-800 hover:bg-emerald-900/40 hover:border-emerald-700 text-left"
             >
               <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold mr-3 shrink-0">
-                LT
+                FD
               </div>
               <div>
-                <div className="font-bold text-xs text-white">Lễ tân & Tiếp nhận bệnh nhân</div>
-                <div className="text-[10px] text-slate-400">Tìm kiếm, Cấp STT tiếp nhận, Journey Board</div>
-              </div>
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => handleLogin("CASHIER", "QUẦY T1")}
-              className="justify-start h-12 bg-slate-900 border-slate-800 hover:bg-amber-900/40 hover:border-amber-700 text-left"
-            >
-              <div className="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold mr-3 shrink-0">
-                TN
-              </div>
-              <div>
-                <div className="font-bold text-xs text-white">Thu ngân (Payment Gate)</div>
-                <div className="text-[10px] text-slate-400">Thu tiền mặt, đối soát VietQR, mở cổng CLS</div>
+                <div className="font-bold text-xs text-white">Lễ tân & Thu phí khám (Front Desk)</div>
+                <div className="text-[10px] text-slate-400">Tìm kiếm BN, Tạo lượt khám, Thu phí khám ban đầu</div>
               </div>
             </Button>
 
@@ -87,7 +73,21 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="font-bold text-xs text-white">KTV Xét nghiệm (P.202)</div>
-                <div className="text-[10px] text-slate-400">Barcode mẫu, duyệt kết quả Panel/Analyte</div>
+                <div className="text-[10px] text-slate-400">Barcode mẫu, duyệt kết quả Panel/Analyte & Auto-return</div>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleLogin("IMAGING_TECH", "P.105")}
+              className="justify-start h-12 bg-slate-900 border-slate-800 hover:bg-amber-900/40 hover:border-amber-700 text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold mr-3 shrink-0">
+                CD
+              </div>
+              <div>
+                <div className="font-bold text-xs text-white">KTV Chẩn đoán hình ảnh & ECG</div>
+                <div className="text-[10px] text-slate-400">Siêu âm, ECG, X-quang kỹ thuật số</div>
               </div>
             </Button>
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
               onClick={() => handleLogin("ALL", "TOÀN VIỆN")}
               className="w-full font-black text-xs h-11 bg-clinic-blue mt-2"
             >
-              Vào hệ thống với quyền đầy đủ (Full 25 Screens) →
+              Vào hệ thống với quyền đầy đủ (Full View) →
             </Button>
           </div>
         </CardContent>

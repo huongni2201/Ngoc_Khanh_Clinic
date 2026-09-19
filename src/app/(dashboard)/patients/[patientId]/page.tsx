@@ -46,8 +46,7 @@ export default async function PatientProfilePage({
         age={patient.age}
         dob={patient.dateOfBirth}
         patientCode={patient.patientCode}
-        encounterCode="ENC-260917-032"
-        queueNumber="#032"
+        encounterCode="ENC-260919-041"
       />
 
       {/* Grid Content: Info on left, Timeline on right */}

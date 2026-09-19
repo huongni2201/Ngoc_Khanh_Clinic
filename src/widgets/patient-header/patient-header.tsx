@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PatientAvatar } from "@/entities/patient/ui/patient-avatar";
 import { Badge } from "@/shared/ui/badge";
-import { ShieldAlert, Activity, AlertTriangle } from "lucide-react";
+import { ShieldAlert, Activity, AlertTriangle, Stethoscope } from "lucide-react";
 
 interface PatientHeaderProps {
   patientName: string;
@@ -10,7 +10,9 @@ interface PatientHeaderProps {
   dob: string;
   patientCode: string;
   encounterCode: string;
-  queueNumber: string;
+  queueNumber?: string;
+  department?: string;
+  roomCode?: string;
   allergies?: Array<{ substance: string; severity: string; note: string }>;
   chronicConditions?: string[];
   bloodPressure?: string;
@@ -23,7 +25,8 @@ export function PatientHeader({
   dob,
   patientCode,
   encounterCode,
-  queueNumber,
+  department = "Nội tổng quát",
+  roomCode = "P.203",
   allergies = [{ substance: "Penicillin", severity: "SEVERE", note: "Phản vệ độ 2 năm 2021 — Cấm dùng Beta-lactam" }],
   chronicConditions = ["Tăng huyết áp nguyên phát (I10)", "Rối loạn lipid máu (E78.2)"],
   bloodPressure = "148/92 mmHg",
@@ -40,8 +43,8 @@ export function PatientHeader({
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-600/80 font-mono font-bold text-white">
                 {patientCode}
               </span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-600/80 font-mono font-black text-white">
-                STT {queueNumber}
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono font-bold border border-slate-700">
+                {encounterCode}
               </span>
             </div>
             <div className="text-xs text-slate-400 mt-1 flex items-center gap-3 flex-wrap">
@@ -49,9 +52,7 @@ export function PatientHeader({
               <span>•</span>
               <span>{dob} ({age} tuổi)</span>
               <span>•</span>
-              <span>Mã lượt khám: <b className="text-slate-300 font-mono">{encounterCode}</b></span>
-              <span>•</span>
-              <span>Phòng: <b className="text-blue-400">P.203 — Nội tổng quát</b></span>
+              <span>Phòng: <b className="text-blue-400">{roomCode} — {department}</b></span>
             </div>
           </div>
         </div>

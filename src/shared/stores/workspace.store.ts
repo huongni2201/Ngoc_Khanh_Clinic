@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { MockServiceItem } from "../constants/mock-data";
+import { useDemoClinicFlowStore } from "./demo-clinic-flow.store";
 
 export type WorkspaceTab = "EXAM" | "ORDERS" | "RESULTS" | "CONCLUSION";
 
@@ -18,7 +19,6 @@ export interface WorkspaceOrderItem {
   price: number;
   serviceRequestStatus: ServiceRequestStatus;
   paymentAuthorizationStatus: PaymentAuthorizationStatus;
-  status?: string; // backward compatibility fallback
   preparationInstructions: string;
   sampleType?: string;
   addedAt: string;
@@ -39,9 +39,10 @@ interface WorkspaceState {
   removeOrder: (orderId: string) => void;
   createNewRound: () => void;
   authorizeAllRound: (round?: number) => void;
+  setOrders: (orders: WorkspaceOrderItem[]) => void;
 
   // Computeds / Helpers
-  getTotalCLSAmount: () => number;
+  getTotalCLSAmount: (round?: number) => number;
   getTotalEncounterAmount: () => number;
 }
 
@@ -58,7 +59,6 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     price: 85000,
     serviceRequestStatus: "COMPLETED",
     paymentAuthorizationStatus: "AUTHORIZED",
-    status: "PAID_AUTHORIZED",
     preparationInstructions: "Nhịn ăn sáng tối thiểu 6-8 tiếng, ngồi nghỉ 5 phút trước khi lấy mẫu máu",
     sampleType: "Máu toàn phần EDTA (Ống nắp tím)",
     addedAt: "08:35",
@@ -75,7 +75,6 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     price: 45000,
     serviceRequestStatus: "COMPLETED",
     paymentAuthorizationStatus: "AUTHORIZED",
-    status: "PAID_AUTHORIZED",
     preparationInstructions: "Nhịn ăn từ 22h00 tối hôm trước, có thể uống một ít nước lọc",
     sampleType: "Huyết tương chống đông Fluoride (Ống nắp xám)",
     addedAt: "08:35",
@@ -92,7 +91,6 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     price: 120000,
     serviceRequestStatus: "COMPLETED",
     paymentAuthorizationStatus: "AUTHORIZED",
-    status: "PAID_AUTHORIZED",
     preparationInstructions: "Nằm nghỉ ngơi thả lỏng 5 phút, tháo bỏ đồng hồ, điện thoại và trang sức kim loại",
     addedAt: "08:35",
   },
@@ -105,6 +103,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   orders: INITIAL_ORDERS,
   isServicePickerOpen: false,
   targetRoundForAdd: 1,
+
+  setOrders: (orders) => set({ orders }),
 
   openServicePicker: (round) =>
     set((state) => ({
@@ -124,7 +124,6 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return false;
     }
 
-    const isRoundOne = targetRound === 1;
     const newOrder: WorkspaceOrderItem = {
       id: `ord-${Date.now().toString().slice(-4)}`,
       round: targetRound,
@@ -136,17 +135,24 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       floor: service.floor,
       price: service.price,
       serviceRequestStatus: "ORDERED",
-      paymentAuthorizationStatus: isRoundOne ? "AUTHORIZED" : "PENDING",
-      status: isRoundOne ? "PAID_AUTHORIZED" : "WAITING_FOR_PAYMENT",
+      paymentAuthorizationStatus: "PENDING",
       preparationInstructions: service.preparationInstructions,
       sampleType: service.sampleType,
       addedAt: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
     };
 
+    const nextOrders = [...state.orders, newOrder];
+    const nextRound = Math.max(state.orderRound, targetRound);
     set({
-      orders: [...state.orders, newOrder],
-      orderRound: Math.max(state.orderRound, targetRound),
+      orders: nextOrders,
+      orderRound: nextRound,
     });
+
+    // Sync to demo flow store
+    try {
+      useDemoClinicFlowStore.getState().addOrder(service, targetRound);
+    } catch {}
+
     return true;
   },
 
@@ -160,6 +166,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         orderRound: Math.max(1, maxRemainingRound),
       };
     });
+
+    try {
+      useDemoClinicFlowStore.getState().removeOrder(orderId);
+    } catch {}
   },
 
   createNewRound: () => {
@@ -171,6 +181,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         isServicePickerOpen: true,
       };
     });
+
+    try {
+      useDemoClinicFlowStore.getState().createOrderRound();
+    } catch {}
   },
 
   authorizeAllRound: (round) => {
@@ -180,15 +194,16 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           ? {
               ...o,
               paymentAuthorizationStatus: "AUTHORIZED",
-              status: "PAID_AUTHORIZED",
             }
           : o
       ),
     }));
   },
 
-  getTotalCLSAmount: () => {
-    return get().orders.reduce((sum, ord) => sum + ord.price, 0);
+  getTotalCLSAmount: (round) => {
+    const orders = get().orders;
+    const target = round !== undefined ? orders.filter((o) => o.round === round) : orders;
+    return target.reduce((sum, ord) => sum + ord.price, 0);
   },
 
   getTotalEncounterAmount: () => {

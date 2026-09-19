@@ -45,9 +45,9 @@ export default function SettingsPage() {
 
   const auditLogs = [
     { time: "09:15:22", user: "CNXN. Trần Thu Hà", role: "LAB_TECH", action: "Duyệt Final kết quả CTM (WBC 12.8 ↑)", ip: "192.168.1.45" },
-    { time: "08:42:10", user: "Nguyễn Thị Mai", role: "CASHIER", action: "Xác nhận thanh toán 400.000đ (INV-260917-088) qua VietQR", ip: "192.168.1.12" },
+    { time: "08:42:10", user: "Nguyễn Thị Mai", role: "FRONT_DESK", action: "Xác nhận thanh toán CLS 250.000đ (INV-260919-041) qua VietQR", ip: "192.168.1.12" },
     { time: "08:35:04", user: "BS. Lê Minh", role: "DOCTOR", action: "Khởi tạo Order Round 1 (CTM, Glucose, ECG) cho BN Nguyễn Văn An", ip: "192.168.1.28" },
-    { time: "08:15:50", user: "Lễ tân: Hoàng Anh", role: "RECEPTIONIST", action: "Tạo Encounter ENC-260917-032 (STT #032) - Khoa Nội P.203", ip: "192.168.1.10" },
+    { time: "08:15:50", user: "Lễ tân: Hoàng Anh", role: "FRONT_DESK", action: "Tạo Encounter ENC-260919-041 - Khoa Nội P.203 & thu phí khám", ip: "192.168.1.10" },
   ];
 
   return (

@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Stethoscope,
   FlaskConical,
-  Pill,
+  CreditCard,
   FileText,
   Building2,
   Sparkles,
@@ -24,79 +24,99 @@ import {
 export default function DashboardPage() {
   const kpis = [
     {
-      label: "Bệnh nhân tiếp nhận",
+      label: "Bệnh nhân đã tiếp nhận",
       value: "142",
-      sub: "+12.4% so với hôm qua",
+      sub: "Hôm nay",
       trend: "up",
       icon: Users,
       accentBorder: "border-l-blue-600",
       iconBg: "bg-blue-50 text-blue-700",
-      badgeText: "Hôm nay",
+      badgeText: "Tiếp đón",
     },
     {
-      label: "Chờ khám lâm sàng",
-      value: "18",
-      sub: "Thời gian chờ TB: 14 phút",
+      label: "Chờ bác sĩ khám",
+      value: "8",
+      sub: "Chờ TB: 8 phút",
       trend: "neutral",
       icon: Clock,
       accentBorder: "border-l-amber-500",
       iconBg: "bg-amber-50 text-amber-800",
-      badgeText: "3 phòng khám",
+      badgeText: "Khám ban đầu",
+    },
+    {
+      label: "Chờ thanh toán CLS",
+      value: "5",
+      sub: "Đang chờ tại quầy",
+      trend: "neutral",
+      icon: CreditCard,
+      accentBorder: "border-l-orange-500",
+      iconBg: "bg-orange-50 text-orange-700",
+      badgeText: "Thu phí CLS",
     },
     {
       label: "Đang thực hiện CLS",
-      value: "34",
-      sub: "P.202 Lab: 21 • P.208 ECG: 13",
+      value: "12",
+      sub: "Lab P.202 & ECG P.208",
       trend: "neutral",
       icon: FlaskConical,
       accentBorder: "border-l-purple-600",
       iconBg: "bg-purple-50 text-purple-700",
-      badgeText: "2 phòng CLS",
+      badgeText: "Đang xét nghiệm",
     },
     {
-      label: "Hoàn tất & Đúng SLA",
-      value: "96.4%",
-      sub: "82/85 ca hoàn tất dưới 60p",
+      label: "Chờ bác sĩ kết luận",
+      value: "4",
+      sub: "Đã có đủ kết quả",
+      trend: "up",
+      icon: Stethoscope,
+      accentBorder: "border-l-indigo-600",
+      iconBg: "bg-indigo-50 text-indigo-700",
+      badgeText: "Ưu tiên cao",
+    },
+    {
+      label: "Hoàn tất hôm nay",
+      value: "113",
+      sub: "Đạt 97.4% SLA",
       trend: "up",
       icon: CheckCircle2,
       accentBorder: "border-l-emerald-600",
       iconBg: "bg-emerald-50 text-emerald-800",
-      badgeText: "Đạt chuẩn SLA",
+      badgeText: "Đóng hồ sơ",
     },
   ];
 
   const quickActions = [
     {
-      label: "Tiếp nhận & Cấp STT",
-      sub: "Bàn Lễ tân số 1 & 2",
+      label: "Tiếp nhận & Thu phí khám",
+      sub: "Đăng ký hồ sơ & thu 150.000 đ",
       icon: Users,
       href: "/reception",
       color: "hover:border-blue-300 hover:bg-blue-50/40",
       iconColor: "text-blue-600 bg-blue-50",
     },
     {
-      label: "Doctor Worklist (P.203)",
-      sub: "Hàng đợi Bác sĩ khám",
+      label: "Danh sách chờ Bác sĩ",
+      sub: "Khám lâm sàng & Kết luận ca bệnh",
       icon: Stethoscope,
       href: "/clinical",
       color: "hover:border-indigo-300 hover:bg-indigo-50/40",
       iconColor: "text-indigo-600 bg-indigo-50",
     },
     {
-      label: "Xét nghiệm Lab P.202",
-      sub: "Nhận mẫu & Duyệt KQ",
+      label: "Thanh toán dịch vụ CLS",
+      sub: "Thu phí đợt chỉ định & cấp quyền",
+      icon: CreditCard,
+      href: "/billing",
+      color: "hover:border-emerald-300 hover:bg-emerald-50/40",
+      iconColor: "text-emerald-700 bg-emerald-50",
+    },
+    {
+      label: "Xét nghiệm trung tâm",
+      sub: "P.202 • Nhận mẫu & duyệt kết quả",
       icon: FlaskConical,
       href: "/laboratory",
       color: "hover:border-purple-300 hover:bg-purple-50/40",
       iconColor: "text-purple-600 bg-purple-50",
-    },
-    {
-      label: "Quầy cấp phát thuốc",
-      sub: "Quét QR toa điện tử",
-      icon: Pill,
-      href: "/pharmacy",
-      color: "hover:border-emerald-300 hover:bg-emerald-50/40",
-      iconColor: "text-emerald-700 bg-emerald-50",
     },
   ];
 
@@ -106,7 +126,7 @@ export default function DashboardPage() {
       room: "Khám Nội tổng quát",
       doctor: "BS. Lê Minh",
       waiting: 6,
-      inExam: "Nguyễn Văn An (#032)",
+      inExam: "Nguyễn Văn An (ENC-260919-041)",
       tat: "12p",
       status: "Bình thường",
       href: "/clinical",
@@ -116,9 +136,9 @@ export default function DashboardPage() {
       roomCode: "P.202",
       room: "Xét nghiệm trung tâm",
       doctor: "CNXN. Trần Thu Hà",
-      waiting: 14,
+      waiting: 8,
       inExam: "3 mẫu đang chạy",
-      tat: "28p",
+      tat: "25p",
       status: "Tải cao",
       href: "/laboratory",
       linkText: "Vào Lab P.202",
@@ -127,8 +147,8 @@ export default function DashboardPage() {
       roomCode: "P.208",
       room: "Thăm dò & Điện tim",
       doctor: "KTV. Vũ Tuấn",
-      waiting: 4,
-      inExam: "1 ca đang đo",
+      waiting: 3,
+      inExam: "1 ca đang đo ECG",
       tat: "8p",
       status: "Bình thường",
       href: "/imaging",
@@ -138,9 +158,9 @@ export default function DashboardPage() {
       roomCode: "P.105",
       room: "Siêu âm màu 01",
       doctor: "BS. Hoàng Ngọc",
-      waiting: 8,
-      inExam: "1 ca đang làm",
-      tat: "16p",
+      waiting: 5,
+      inExam: "1 ca đang siêu âm",
+      tat: "15p",
       status: "Bình thường",
       href: "/imaging",
       linkText: "Vào Siêu âm P.105",
@@ -150,26 +170,26 @@ export default function DashboardPage() {
   const liveEvents = [
     {
       time: "10:14",
-      title: "BN. Nguyễn Văn An (#032) có kết quả CTM",
-      sub: "P.202 Lab — Tự động trả về phòng khám",
+      title: "BN. Nguyễn Văn An (ENC-260919-041) hoàn tất 3/3 CLS",
+      sub: "Tự động chuyển về: Chờ bác sĩ kết luận",
       type: "success",
     },
     {
       time: "10:08",
-      title: "BS. Lê Minh phát hành đơn thuốc RX-018",
-      sub: "Đã kiểm tra an toàn: Không dị ứng Penicillin",
+      title: "KTV P.208 duyệt kết quả Điện tâm đồ (ECG)",
+      sub: "Nhịp xoang đều 78ck/p • Trả kết quả về phòng khám",
       type: "primary",
     },
     {
       time: "09:55",
-      title: "Thu ngân nhận thanh toán VietQR 400.000 đ",
-      sub: "Đã xác nhận & Cấp quyền AUTHORIZED mở cổng CLS",
+      title: "Thanh toán CLS hoàn tất: 250.000 đ (VietQR)",
+      sub: "Đã xác nhận & Cấp quyền thực hiện Lab/ECG",
       type: "neutral",
     },
     {
       time: "09:40",
-      title: "Tiếp nhận bệnh nhân mới STT #035",
-      sub: "Phân luồng vào hàng đợi P.203 Nội khoa",
+      title: "Tiếp nhận mới & Thu phí khám 150.000 đ",
+      sub: "BN. Trần Thị Mai • Phân luồng vào P.203 Nội khoa",
       type: "neutral",
     },
   ];
@@ -179,16 +199,16 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="TỔNG QUAN VẬN HÀNH NGOẠI TRÚ"
         title="Dashboard Quản trị Phòng khám"
-        description="Theo dõi lưu lượng bệnh nhân, tiến độ cận lâm sàng và cảnh báo SLA thời gian thực"
+        description="Theo dõi lưu lượng bệnh nhân, tiến độ cận lâm sàng và luồng khám liên tục thời gian thực"
         action={
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
               Ca làm việc: Sáng 07:30 - 12:00
             </span>
-            <Link href="/encounters/ENC-260917-032">
+            <Link href="/clinical">
               <Button className="font-bold bg-clinic-blue text-white shadow-sm hover:bg-clinic-blue-hover active:scale-[0.98]">
-                Vào khám ca Nguyễn Văn An
+                Mở Danh sách chờ Bác sĩ
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             </Link>
@@ -196,8 +216,8 @@ export default function DashboardPage() {
         }
       />
 
-      {/* 4 Bento Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 6 Journey Metric Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {kpis.map((k, i) => {
           const Icon = k.icon;
           return (
@@ -205,24 +225,24 @@ export default function DashboardPage() {
               key={i}
               className={`border-slate-200 border-l-4 ${k.accentBorder} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default bg-white`}
             >
-              <CardContent className="p-4 space-y-2">
+              <CardContent className="p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 tracking-tight">{k.label}</span>
-                  <div className={`p-2 rounded-lg ${k.iconBg}`}>
-                    <Icon className="w-4 h-4" />
+                  <span className="text-[11px] font-bold text-slate-600 tracking-tight truncate">{k.label}</span>
+                  <div className={`p-1.5 rounded-md ${k.iconBg}`}>
+                    <Icon className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="text-2xl font-black text-slate-900 tracking-tight font-mono">
+                <div className="flex items-baseline justify-between pt-0.5">
+                  <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
                     {k.value}
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200">
                     {k.badgeText}
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-600 pt-0.5 flex items-center gap-1">
-                  {k.trend === "up" && <TrendingUp className="w-3.5 h-3.5 text-emerald-700" />}
-                  <span>{k.sub}</span>
+                <div className="text-[10px] text-slate-500 pt-0.5 flex items-center gap-1 truncate">
+                  {k.trend === "up" && <TrendingUp className="w-3 h-3 text-emerald-700 shrink-0" />}
+                  <span className="truncate">{k.sub}</span>
                 </div>
               </CardContent>
             </Card>

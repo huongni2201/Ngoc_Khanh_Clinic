@@ -1,11 +1,9 @@
 export type UserRole =
   | "ALL"
-  | "RECEPTIONIST"
+  | "FRONT_DESK"
   | "DOCTOR"
-  | "CASHIER"
   | "LAB_TECH"
   | "IMAGING_TECH"
-  | "PHARMACIST"
   | "MANAGER"
   | "ADMIN";
 
@@ -23,49 +21,35 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     label: "Tất cả màn hình (Full)",
     badgeLabel: "Full View",
     defaultRoute: "/dashboard",
-    description: "Xem toàn bộ 25 phân hệ hệ thống",
+    description: "Xem toàn bộ phân hệ hệ thống",
   },
-  RECEPTIONIST: {
-    id: "RECEPTIONIST",
-    label: "Lễ tân & Tiếp nhận",
-    badgeLabel: "Lễ tân",
+  FRONT_DESK: {
+    id: "FRONT_DESK",
+    label: "Lễ tân & Thu phí khám (Front Desk)",
+    badgeLabel: "Front Desk",
     defaultRoute: "/reception",
-    description: "Tìm kiếm, Đăng ký, Cấp số tiếp nhận & Journey Board",
+    description: "Tìm kiếm, Tạo hồ sơ, Tạo lượt khám, Thu phí khám ban đầu & Lịch hẹn",
   },
   DOCTOR: {
     id: "DOCTOR",
     label: "Bác sĩ khám (P.203)",
     badgeLabel: "BS. Lê Minh",
     defaultRoute: "/clinical",
-    description: "Doctor Worklist, Clinical Workspace, Y lệnh & Kê đơn",
-  },
-  CASHIER: {
-    id: "CASHIER",
-    label: "Thu ngân (Payment Gate)",
-    badgeLabel: "Thu ngân T1",
-    defaultRoute: "/billing",
-    description: "Thanh toán viện phí, VietQR, ủy quyền dịch vụ PAID_AUTHORIZED",
+    description: "Danh sách chờ khám, Khám lâm sàng, Chỉ định CLS, In phiếu thanh toán, Kết luận & Kê đơn",
   },
   LAB_TECH: {
     id: "LAB_TECH",
     label: "KTV Xét nghiệm (P.202)",
     badgeLabel: "KTV Lab",
     defaultRoute: "/laboratory",
-    description: "Lab Worklist, Barcode mẫu, Duyệt kết quả theo Panel/Analyte",
+    description: "Lab Worklist, Barcode mẫu, Duyệt kết quả theo Panel/Analyte & Auto-return",
   },
   IMAGING_TECH: {
     id: "IMAGING_TECH",
-    label: "Bác sĩ/KTV CĐHA & ECG",
+    label: "Bác sĩ / KTV CĐHA & ECG",
     badgeLabel: "Siêu âm / ECG",
     defaultRoute: "/imaging",
-    description: "Siêu âm P.105, Điện tim P.208 & X-quang kỹ thuật số",
-  },
-  PHARMACIST: {
-    id: "PHARMACIST",
-    label: "Dược sĩ quầy thuốc",
-    badgeLabel: "Nhà thuốc",
-    defaultRoute: "/pharmacy",
-    description: "Quét QR đơn thuốc, đối soát lô HSD và cấp phát",
+    description: "Siêu âm P.105, Điện tim P.208, X-quang KTS & Auto-return",
   },
   MANAGER: {
     id: "MANAGER",

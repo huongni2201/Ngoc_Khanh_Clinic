@@ -285,7 +285,7 @@ export const MOCK_SERVICES: MockServiceItem[] = [
 export interface MockEncounter {
   id: string;
   encounterCode: string;
-  queueNumber: string;
+  queueNumber?: string;
   patientId: string;
   patientCode: string;
   patientName: string;
@@ -316,6 +316,8 @@ export interface MockEncounter {
     roomCode: string;
     roomName: string;
     price: number;
+    serviceRequestStatus?: "ORDERED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+    paymentAuthorizationStatus?: "NOT_REQUIRED" | "PENDING" | "AUTHORIZED" | "WAIVED" | "REVOKED";
     status: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED";
   }>;
   invoice: {
@@ -335,16 +337,16 @@ export interface MockEncounter {
 }
 
 export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
-  id: "enc-032",
-  encounterCode: "ENC-260917-032",
-  queueNumber: "#032",
+  id: "enc-041",
+  encounterCode: "ENC-260919-041",
+  queueNumber: "",
   patientId: "p1",
   patientCode: "PT-001842",
   patientName: "Nguyễn Văn An",
   gender: "MALE",
   age: 45,
   dob: "12/04/1981",
-  registeredAt: "17/09/2026 08:15",
+  registeredAt: "19/09/2026 08:32",
   status: "IN_EXAM",
   chiefComplaint: "Đau đầu từng cơn vùng chẩm, chóng mặt khi đổi tư thế 3 ngày nay, đo huyết áp tại nhà 150/95 mmHg.",
   clinicalNotes: "Bệnh nhân tỉnh táo, tiếp xúc tốt. Tim đều, T1 T2 rõ, không tiếng thổi bệnh lý. Phổi thông khí đều 2 bên không rale. Bụng mềm, không điểm đau khu trú. Tiền sử tăng huyết áp đang uống Amlodipine 5mg.",
@@ -360,7 +362,9 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       roomCode: "P.202",
       roomName: "Phòng Xét nghiệm Tầng 2",
       price: 85000,
-      status: "PAID_AUTHORIZED",
+      serviceRequestStatus: "COMPLETED",
+      paymentAuthorizationStatus: "AUTHORIZED",
+      status: "COMPLETED",
     },
     {
       round: 1,
@@ -369,7 +373,9 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       roomCode: "P.202",
       roomName: "Phòng Xét nghiệm Tầng 2",
       price: 45000,
-      status: "PAID_AUTHORIZED",
+      serviceRequestStatus: "COMPLETED",
+      paymentAuthorizationStatus: "AUTHORIZED",
+      status: "COMPLETED",
     },
     {
       round: 1,
@@ -378,21 +384,23 @@ export const MOCK_ACTIVE_ENCOUNTER: MockEncounter = {
       roomCode: "P.208",
       roomName: "Phòng Điện tim Tầng 2",
       price: 120000,
-      status: "PAID_AUTHORIZED",
+      serviceRequestStatus: "COMPLETED",
+      paymentAuthorizationStatus: "AUTHORIZED",
+      status: "COMPLETED",
     },
   ],
   invoice: {
-    invoiceCode: "INV-260917-088",
-    totalAmount: 400000, // 150k Khám + 250k CLS
+    invoiceCode: "INV-260919-041",
+    totalAmount: 250000, // 250k CLS Đợt 1
     status: "PAID",
     paymentMethod: "VIETQR",
     vietQR: {
       bankName: "MB Bank (Ngân Hàng Quân Đội)",
       accountNumber: "09123456789",
       accountName: "PHONG KHAM DA KHOA NGOC KHANH CLINICONE",
-      amount: 400000,
-      transferContent: "ENC-032 NGUYEN VAN AN 400000",
-      qrImageUrl: "https://api.vietqr.io/image/970422-09123456789-Q41vFfP.jpg?accountName=PHONG%20KHAM%20NGOC%20KHANH&amount=400000&addInfo=ENC-032%20NGUYEN%20VAN%20AN",
+      amount: 250000,
+      transferContent: "ENC-041 NGUYEN VAN AN 250000",
+      qrImageUrl: "https://api.vietqr.io/image/970422-09123456789-Q41vFfP.jpg?accountName=PHONG%20KHAM%20NGOC%20KHANH&amount=250000&addInfo=ENC-041%20NGUYEN%20VAN%20AN",
     },
   },
 };

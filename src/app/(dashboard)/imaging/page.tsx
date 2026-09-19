@@ -7,9 +7,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { useUIStore } from "@/shared/stores/ui.store";
-import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import { MOCK_ECG_RESULT } from "@/shared/constants/mock-data";
-import { Activity, Camera, CheckCircle2, Sliders, Eye, FileCheck, ArrowRight } from "lucide-react";
+import { Activity, Camera, CheckCircle2, Sliders, Eye, FileCheck, ArrowRight, Lock } from "lucide-react";
 
 export default function ImagingPage() {
   const { showToast } = useUIStore();
@@ -18,18 +18,31 @@ export default function ImagingPage() {
     patientCode,
     encounterCode,
     imagingStatus,
+    labStatus,
+    diagnosticInvoiceStatus,
+    isDiagnosticAuthorized,
     finalizeImaging,
-  } = useDemoJourneyStore();
+  } = useDemoClinicFlowStore();
 
-  const [activeModality, setActiveModality] = React.useState<"ULTRASOUND" | "ECG" | "XRAY">("ULTRASOUND");
-  const [template, setTemplate] = React.useState("ABDOMEN");
+  const [activeModality, setActiveModality] = React.useState<"ULTRASOUND" | "ECG" | "XRAY">("ECG");
+  const [template, setTemplate] = React.useState("ECG");
   const [conclusion, setConclusion] = React.useState(
-    "Gan kích thước bình thường, nhu mô đồng nhất, không thấy khối khu trú. Túi mật thành mỏng, không sỏi. Tụy, lách, hai thận bình thường. Hiện tại chưa phát hiện bất thường hình thái trên siêu âm ổ bụng."
+    "Nhịp xoang đều, tần số 82 chu kỳ/phút. Dày thất trái nhẹ theo chỉ số Sokolow-Lyon. Chưa thấy biến đổi đoạn ST-T thiếu máu cơ tim cấp."
   );
 
+  const isAuthorized = isDiagnosticAuthorized(1) || diagnosticInvoiceStatus === "PAID";
+
   const handleApprove = () => {
+    if (!isAuthorized) {
+      showToast("Chưa được phép thực hiện: Bệnh nhân chưa thanh toán phí dịch vụ CLS!");
+      return;
+    }
     finalizeImaging();
-    showToast("Đã ký duyệt Final kết quả Chẩn đoán hình ảnh! Hệ thống tự động chuyển bệnh nhân vào Hàng đợi Kết luận (P203-R015).");
+    if (labStatus === "FINAL") {
+      showToast("Đã ký duyệt Final! Đủ 3/3 kết quả CLS → Bệnh nhân đã tự động chuyển sang Chờ Bác sĩ kết luận.");
+    } else {
+      showToast("Đã ký duyệt Final kết quả CĐHA & ECG! Kết quả đã tự động trả về máy tính BS. Lê Minh.");
+    }
   };
 
   return (
@@ -37,39 +50,50 @@ export default function ImagingPage() {
       <PageHeader
         eyebrow="CHẨN ĐOÁN HÌNH ẢNH & THĂM DÒ CHỨC NĂNG"
         title="Siêu âm & Điện tim (Phòng P.105 & P.208)"
-        description="Viewer hình ảnh siêu âm Doppler đa tần số, sóng điện tim 12 chuyển đạo vi tính và duyệt báo cáo tự động trả về máy bác sĩ"
+        description="Đối soát quyền thực hiện (Payment Authorization), dạng sóng điện tim 12 chuyển đạo vi tính và duyệt báo cáo tự động trả về máy bác sĩ"
         action={
           <div className="flex items-center gap-2">
-            <Button variant="success" onClick={handleApprove} className="font-bold text-xs">
+            <Button
+              variant="success"
+              disabled={!isAuthorized}
+              onClick={handleApprove}
+              className="font-bold text-xs"
+            >
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              Ký duyệt Final & Chuyển ca về Bác sĩ
+              Ký duyệt Final & Auto-Return về Bác sĩ
             </Button>
           </div>
         }
       />
+
+      {/* Lock Gate Warning if Not Authorized */}
+      {!isAuthorized && (
+        <Card className="border-amber-300 bg-amber-50/90 text-amber-950 p-4 shadow-sm space-y-2">
+          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+            <Lock className="w-5 h-5 text-amber-700" />
+            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT GATE LOCKED)</span>
+          </div>
+          <p className="text-xs text-amber-800 leading-relaxed">
+            Chỉ định kỹ thuật Điện tim & Siêu âm của người bệnh <b>{patientName} ({patientCode})</b> chưa được cấp quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thanh toán tại Quầy thu ngân trước khi vào phòng kỹ thuật.
+          </p>
+          <div className="pt-1">
+            <Link href="/billing">
+              <Button size="sm" className="bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs h-8">
+                Mở màn hình Thanh toán CLS →
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
 
       {/* Modality Switcher Tabs */}
       <div className="flex items-center bg-slate-200/80 p-1 rounded-2xl border border-slate-300 max-w-lg">
         <button
           type="button"
           onClick={() => {
-            setActiveModality("ULTRASOUND");
-            setTemplate("ABDOMEN");
-          }}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
-            activeModality === "ULTRASOUND"
-              ? "bg-white text-clinic-blue shadow-sm"
-              : "text-slate-600 hover:text-slate-900"
-          }`}
-        >
-          Siêu âm Doppler (P.105)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
             setActiveModality("ECG");
             setTemplate("ECG");
+            setConclusion("Nhịp xoang đều, tần số 82 chu kỳ/phút. Dày thất trái nhẹ theo chỉ số Sokolow-Lyon. Chưa thấy biến đổi đoạn ST-T thiếu máu cơ tim cấp.");
           }}
           className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
             activeModality === "ECG"
@@ -83,8 +107,25 @@ export default function ImagingPage() {
         <button
           type="button"
           onClick={() => {
+            setActiveModality("ULTRASOUND");
+            setTemplate("ABDOMEN");
+            setConclusion("Gan kích thước bình thường, nhu mô đồng nhất. Túi mật không sỏi. Tụy lách thận bình thường.");
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
+            activeModality === "ULTRASOUND"
+              ? "bg-white text-clinic-blue shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          Siêu âm Doppler (P.105)
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
             setActiveModality("XRAY");
             setTemplate("CHEST");
+            setConclusion("Hình thái bóng tim và trường phổi hai bên trong giới hạn bình thường.");
           }}
           className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
             activeModality === "XRAY"
@@ -103,35 +144,21 @@ export default function ImagingPage() {
           <span className="px-2 py-0.5 rounded bg-blue-900 text-blue-300 font-mono font-bold">{patientCode}</span>
           <span className="text-slate-400">Lượt khám: <b>{encounterCode}</b></span>
         </div>
-        <Badge variant={imagingStatus === "FINAL" ? "success" : "warn"} className="font-bold">
-          {imagingStatus === "FINAL" ? "FINAL (ĐÃ DUYỆT)" : "ĐANG THỰC HIỆN"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <span className={`px-2.5 py-1 rounded font-bold text-[10px] ${
+            isAuthorized ? "bg-emerald-950 border border-emerald-700 text-emerald-300" : "bg-red-950 border border-red-800 text-red-300"
+          }`}>
+            {isAuthorized ? "✓ AUTHORIZED" : "LOCKED"}
+          </span>
+          <Badge variant={imagingStatus === "FINAL" ? "success" : "warn"} className="font-bold">
+            {imagingStatus === "FINAL" ? "FINAL (ĐÃ DUYỆT)" : "ĐANG THỰC HIỆN"}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Image Viewer & Waveform (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {activeModality === "ULTRASOUND" && (
-            <Card className="border-slate-800 bg-slate-950 text-white shadow-xl overflow-hidden">
-              <div className="p-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-300">ĐẦU DÒ LINEAR 9L (7.5 MHz) • GAIN 68 • DEPTH 4.0cm</span>
-                <Badge variant="outline" className="text-emerald-400 border-emerald-600 font-mono text-[10px]">
-                  DICOM STREAM
-                </Badge>
-              </div>
-
-              <div className="aspect-video bg-black flex flex-col items-center justify-center relative p-4">
-                <div className="w-52 h-40 border border-slate-700 rounded-2xl flex items-center justify-center bg-slate-900/60 text-center p-3">
-                  <Camera className="w-10 h-10 text-slate-500 mb-1" />
-                </div>
-                <span className="text-[11px] text-slate-400 mt-2">Mô phỏng hình ảnh Doppler ổ bụng tổng quát</span>
-                <div className="absolute bottom-2 left-3 text-[10px] font-mono text-slate-500">
-                  {patientCode} • {patientName} • FPS: 28 • MI: 0.9 • TIS: 0.4
-                </div>
-              </div>
-            </Card>
-          )}
-
           {activeModality === "ECG" && (
             <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
               <CardHeader className="bg-slate-50 p-4 border-b border-slate-200 flex flex-row items-center justify-between">
@@ -160,6 +187,27 @@ export default function ImagingPage() {
                   <span>Bộ lọc tần số: 0.05 - 150 Hz</span>
                 </div>
               </CardContent>
+            </Card>
+          )}
+
+          {activeModality === "ULTRASOUND" && (
+            <Card className="border-slate-800 bg-slate-950 text-white shadow-xl overflow-hidden">
+              <div className="p-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-300">ĐẦU DÒ LINEAR 9L (7.5 MHz) • GAIN 68 • DEPTH 4.0cm</span>
+                <Badge variant="outline" className="text-emerald-400 border-emerald-600 font-mono text-[10px]">
+                  DICOM STREAM
+                </Badge>
+              </div>
+
+              <div className="aspect-video bg-black flex flex-col items-center justify-center relative p-4">
+                <div className="w-52 h-40 border border-slate-700 rounded-2xl flex items-center justify-center bg-slate-900/60 text-center p-3">
+                  <Camera className="w-10 h-10 text-slate-500 mb-1" />
+                </div>
+                <span className="text-[11px] text-slate-400 mt-2">Mô phỏng hình ảnh Doppler ổ bụng tổng quát</span>
+                <div className="absolute bottom-2 left-3 text-[10px] font-mono text-slate-500">
+                  {patientCode} • {patientName} • FPS: 28 • MI: 0.9
+                </div>
+              </div>
             </Card>
           )}
 
@@ -197,14 +245,14 @@ export default function ImagingPage() {
                   onChange={(e) => setTemplate(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-clinic-blue outline-none"
                 >
+                  <option value="ECG">Điện tâm đồ thông thường 12 chuyển đạo vi tính (ECG)</option>
                   <option value="ABDOMEN">Siêu âm ổ bụng tổng quát (Gan, Mật, Tụy, Thận)</option>
-                  <option value="ECG">Điện tâm đồ thông thường 12 chuyển đạo vi tính</option>
                   <option value="CHEST">X-quang tim phổi thẳng kỹ thuật số</option>
                 </select>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Mô tả tổn thương hình ảnh:</label>
+                <label className="font-bold text-slate-700 block mb-1">Mô tả tổn thương / Sóng điện tim:</label>
                 <textarea
                   rows={4}
                   value={conclusion}
@@ -223,7 +271,11 @@ export default function ImagingPage() {
               </div>
 
               <div className="pt-2">
-                <Button onClick={handleApprove} className="w-full font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-10 shadow-sm">
+                <Button
+                  disabled={!isAuthorized}
+                  onClick={handleApprove}
+                  className="w-full font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-10 shadow-sm"
+                >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Ký duyệt Final & Auto-Return về Bác sĩ →
                 </Button>

@@ -6,14 +6,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import { Calendar, Clock, PlusCircle, CheckCircle2, MessageSquare, Sparkles } from "lucide-react";
 
 export default function AppointmentsPage() {
-  const { isAppointmentBooked, appointmentCode, patientName, patientCode } = useDemoJourneyStore();
+  const { appointmentCreated, appointmentCode, patientName, patientCode } = useDemoClinicFlowStore();
 
   const appointments = [
-    ...(isAppointmentBooked
+    ...(appointmentCreated
       ? [
           {
             code: appointmentCode || "APT-261017-001",

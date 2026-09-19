@@ -1,5 +1,18 @@
 export type OrderType = "LABORATORY" | "IMAGING" | "ULTRASOUND" | "ECG" | "EXAM";
 
+export type ServiceRequestStatus =
+  | "ORDERED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELED";
+
+export type PaymentAuthorizationStatus =
+  | "NOT_REQUIRED"
+  | "PENDING"
+  | "AUTHORIZED"
+  | "WAIVED"
+  | "REVOKED";
+
 export interface ServiceItem {
   code: string;
   name: string;
@@ -22,6 +35,8 @@ export interface ServiceRequest {
   floor: string;
   price: number;
   preparationInstructions: string;
-  status: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+  serviceRequestStatus: ServiceRequestStatus;
+  paymentAuthorizationStatus: PaymentAuthorizationStatus;
+  status?: "ORDERED" | "UNPAID" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
   orderedAt: string;
 }

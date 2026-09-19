@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { useUIStore } from "@/shared/stores/ui.store";
-import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import {
   Smartphone,
   Laptop,
@@ -30,9 +30,11 @@ export default function PatientPortalPage() {
     patientCode,
     encounterCode,
     rxCode,
-    isAppointmentBooked,
+    prescriptionIssued,
+    appointmentCreated,
     appointmentCode,
-  } = useDemoJourneyStore();
+    finalDiagnosis,
+  } = useDemoClinicFlowStore();
 
   const [deviceView, setDeviceView] = React.useState<"desktop" | "mobile">("desktop");
 
@@ -41,7 +43,7 @@ export default function PatientPortalPage() {
   };
 
   const handleAddToCalendar = () => {
-    showToast("Đã thêm lịch tái khám ngày 17/10/2026 vào Lịch thiết bị (Google/Apple Calendar)!");
+    showToast(`Đã thêm lịch tái khám ${appointmentCode} ngày 17/10/2026 vào Lịch thiết bị (Google/Apple Calendar)!`);
   };
 
   return (

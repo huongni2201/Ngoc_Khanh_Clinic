@@ -1,14 +1,25 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { PageHeader } from "@/shared/components/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { useUIStore } from "@/shared/stores/ui.store";
-import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore } from "@/shared/stores/demo-clinic-flow.store";
 import { MOCK_LAB_RESULTS } from "@/shared/constants/mock-data";
-import { FlaskConical, CheckCircle2, QrCode, ShieldCheck, AlertCircle, Sparkles } from "lucide-react";
+import {
+  FlaskConical,
+  CheckCircle2,
+  QrCode,
+  ShieldCheck,
+  AlertCircle,
+  Sparkles,
+  Lock,
+  ArrowRight,
+  Clock,
+} from "lucide-react";
 
 export default function LaboratoryPage() {
   const { showToast } = useUIStore();
@@ -17,20 +28,37 @@ export default function LaboratoryPage() {
     patientCode,
     encounterCode,
     labStatus,
+    imagingStatus,
+    diagnosticInvoiceStatus,
+    isDiagnosticAuthorized,
     collectLabSample,
     finalizeLab,
-  } = useDemoJourneyStore();
+  } = useDemoClinicFlowStore();
 
   const [results, setResults] = React.useState(MOCK_LAB_RESULTS);
 
+  const isAuthorized = isDiagnosticAuthorized(1) || diagnosticInvoiceStatus === "PAID";
+
   const handleCollectSample = () => {
+    if (!isAuthorized) {
+      showToast("Chưa thể lấy mẫu: Bệnh nhân chưa nộp phí CLS tại Quầy thu ngân!");
+      return;
+    }
     collectLabSample();
-    showToast("Đã xác nhận lấy mẫu máu EDTA và dán mã vạch LAB26091900041.");
+    showToast("Đã xác nhận lấy mẫu máu EDTA và dán mã vạch SPEC-260919-0881.");
   };
 
   const handleVerifyFinal = () => {
+    if (!isAuthorized) {
+      showToast("Chưa được phép thực hiện: Bệnh nhân chưa thanh toán CLS!");
+      return;
+    }
     finalizeLab();
-    showToast("Đã ký duyệt Final kết quả xét nghiệm! Hệ thống đã tự động trả kết quả về máy tính BS. Lê Minh.");
+    if (imagingStatus === "FINAL") {
+      showToast("Đã ký duyệt Final! Đủ 3/3 kết quả CLS → Bệnh nhân đã tự động chuyển sang Chờ Bác sĩ kết luận.");
+    } else {
+      showToast("Đã ký duyệt Final kết quả xét nghiệm! Đã tự động gửi kết quả về máy tính BS. Lê Minh.");
+    }
   };
 
   return (
@@ -38,21 +66,23 @@ export default function LaboratoryPage() {
       <PageHeader
         eyebrow="KHU VỰC XÉT NGHIỆM TRUNG TÂM"
         title="Phòng Xét Nghiệm Trung Tâm (P.202 Tầng 2)"
-        description="Quản lý ống nghiệm, đối soát 2 định danh an toàn, kết nối LIS hai chiều và duyệt kết quả theo cấu trúc Nhóm -> Panel -> Analyte"
+        description="Đối soát quyền thực hiện (Payment Authorization), quản lý mẫu bệnh phẩm và duyệt kết quả theo cấu trúc Nhóm -> Panel -> Analyte"
         action={
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
+              disabled={!isAuthorized}
               onClick={handleCollectSample}
               className="font-bold text-xs border-slate-300"
             >
               <QrCode className="w-3.5 h-3.5 mr-1 text-purple-600" />
-              1. Lấy mẫu & Dán Barcode
+              1. Tiếp nhận & Lấy mẫu
             </Button>
             <Button
               variant="success"
               size="sm"
+              disabled={!isAuthorized}
               onClick={handleVerifyFinal}
               className="font-bold text-xs"
             >
@@ -63,11 +93,31 @@ export default function LaboratoryPage() {
         }
       />
 
+      {/* Lock Gate Warning if Not Authorized */}
+      {!isAuthorized && (
+        <Card className="border-amber-300 bg-amber-50/90 text-amber-950 p-4 shadow-sm space-y-2">
+          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+            <Lock className="w-5 h-5 text-amber-700" />
+            <span>KHÓA CỔNG THỰC HIỆN — CHƯA THANH TOÁN PHÍ DỊCH VỤ (PAYMENT GATE LOCKED)</span>
+          </div>
+          <p className="text-xs text-amber-800 leading-relaxed">
+            Chỉ định xét nghiệm máu của người bệnh <b>{patientName} ({patientCode})</b> chưa được kích hoạt quyền thực hiện (Payment Authorization Status: PENDING). Người bệnh cần hoàn tất thủ tục thanh toán viện phí tại Quầy thanh toán trước khi lấy mẫu.
+          </p>
+          <div className="pt-1">
+            <Link href="/billing">
+              <Button size="sm" className="bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs h-8">
+                Mở màn hình Thanh toán CLS →
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
       {/* Specimen Banner */}
       <Card className="border-slate-800 shadow-sm bg-slate-900 text-white">
         <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center font-bold shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center font-bold shadow-md shrink-0">
               <FlaskConical className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -80,11 +130,13 @@ export default function LaboratoryPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded bg-purple-950 border border-purple-800 text-purple-300 font-mono font-bold">
-              LIS CONNECTED
+            <span className={`px-2.5 py-1 rounded font-bold text-[10px] ${
+              isAuthorized ? "bg-emerald-950 border border-emerald-700 text-emerald-300" : "bg-red-950 border border-red-800 text-red-300"
+            }`}>
+              {isAuthorized ? "✓ AUTHORIZED (ĐÃ THANH TOÁN)" : "GATE LOCKED (CHỜ NỘP PHÍ)"}
             </span>
             <Badge variant={labStatus === "FINAL" ? "success" : "warn"} className="font-bold">
-              {labStatus === "FINAL" ? "FINAL (ĐÃ DUYỆT)" : "ĐANG CHẠY MÁY"}
+              {labStatus === "FINAL" ? "FINAL (ĐÃ DUYỆT)" : labStatus === "SAMPLE_COLLECTED" ? "ĐÃ LẤY MẪU" : "CHỜ LẤY MẪU"}
             </Badge>
           </div>
         </CardContent>

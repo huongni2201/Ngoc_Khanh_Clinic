@@ -2,17 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useDemoJourneyStore, JourneyStage } from "@/shared/stores/demo-journey.store";
+import { useDemoClinicFlowStore, JourneyStage } from "@/shared/stores/demo-clinic-flow.store";
 import { useUIStore } from "@/shared/stores/ui.store";
 import {
   Check,
   ChevronRight,
   RotateCcw,
-  Activity,
   User,
   Clock,
   Sparkles,
   CheckCircle2,
+  Stethoscope,
+  CreditCard,
+  FlaskConical,
+  FileCheck,
 } from "lucide-react";
 
 interface StepItem {
@@ -23,72 +26,96 @@ interface StepItem {
   isActive: boolean;
 }
 
+export const STAGE_LABELS: Record<JourneyStage, string> = {
+  REGISTERED: "Mới tiếp nhận",
+  WAITING_FOR_DOCTOR: "Chờ bác sĩ khám",
+  IN_EXAM: "Đang khám",
+  WAITING_FOR_DIAGNOSTIC_PAYMENT: "Chờ thanh toán CLS",
+  WAITING_FOR_DIAGNOSTIC: "Chờ thực hiện CLS",
+  DIAGNOSTIC_IN_PROGRESS: "Đang thực hiện CLS",
+  WAITING_FOR_RESULTS: "Chờ kết quả",
+  WAITING_FOR_CONCLUSION: "Chờ bác sĩ kết luận",
+  IN_CONCLUSION: "Đang kết luận",
+  COMPLETED: "Hoàn tất",
+  CANCELED: "Đã hủy",
+};
+
 export function EncounterJourneyBar() {
   const {
     patientName,
     patientCode,
     encounterCode,
-    currentStage,
-    isPaid,
+    journeyStage,
+    initialExamFeePaid,
+    diagnosticInvoiceStatus,
     labStatus,
     imagingStatus,
-    initialExamTicket,
-    returnExamTicket,
     resetDemo,
-  } = useDemoJourneyStore();
+  } = useDemoClinicFlowStore();
 
   const { showToast } = useUIStore();
 
   const isDiagnosticsDone = labStatus === "FINAL" && imagingStatus === "FINAL";
-  const isConclusionStage = currentStage === "WAITING_FOR_CONCLUSION" || currentStage === "IN_CONCLUSION";
-  const isCompleted = currentStage === "COMPLETED";
+  const isConclusionStage = journeyStage === "WAITING_FOR_CONCLUSION" || journeyStage === "IN_CONCLUSION";
+  const isCompleted = journeyStage === "COMPLETED";
+
+  const isExamPassed =
+    journeyStage !== "REGISTERED" &&
+    journeyStage !== "WAITING_FOR_DOCTOR" &&
+    journeyStage !== "IN_EXAM";
+
+  const isBillingPassed =
+    diagnosticInvoiceStatus === "PAID" ||
+    journeyStage === "WAITING_FOR_DIAGNOSTIC" ||
+    journeyStage === "DIAGNOSTIC_IN_PROGRESS" ||
+    journeyStage === "WAITING_FOR_RESULTS" ||
+    isConclusionStage ||
+    isCompleted;
+
+  const isDiagnosticPassed = isDiagnosticsDone || isConclusionStage || isCompleted;
 
   const steps: StepItem[] = [
     {
       id: "reception",
-      label: "1. Tiếp nhận",
+      label: "Tiếp nhận & Phí khám",
       href: "/reception",
-      isPassed: currentStage !== "WAITING_FOR_RECEPTION" && currentStage !== "IN_RECEPTION",
-      isActive: currentStage === "WAITING_FOR_RECEPTION" || currentStage === "IN_RECEPTION",
+      isPassed: initialExamFeePaid || journeyStage !== "REGISTERED",
+      isActive: journeyStage === "REGISTERED",
     },
     {
       id: "exam",
-      label: "2. Khám ban đầu",
-      href: "/encounters/ENC-260917-032",
-      isPassed:
-        currentStage !== "WAITING_FOR_RECEPTION" &&
-        currentStage !== "IN_RECEPTION" &&
-        currentStage !== "WAITING_FOR_EXAM" &&
-        currentStage !== "IN_EXAM",
-      isActive: currentStage === "WAITING_FOR_EXAM" || currentStage === "IN_EXAM",
+      label: "Khám lâm sàng",
+      href: "/clinical",
+      isPassed: isExamPassed,
+      isActive: journeyStage === "WAITING_FOR_DOCTOR" || journeyStage === "IN_EXAM",
     },
     {
       id: "billing",
-      label: "3. Thanh toán",
+      label: "Thanh toán CLS",
       href: "/billing",
-      isPassed: isPaid || currentStage === "DIAGNOSTIC_IN_PROGRESS" || currentStage === "WAITING_FOR_RESULTS" || isConclusionStage || isCompleted,
-      isActive: currentStage === "WAITING_FOR_PAYMENT",
+      isPassed: isBillingPassed,
+      isActive: journeyStage === "WAITING_FOR_DIAGNOSTIC_PAYMENT",
     },
     {
       id: "diagnostics",
-      label: "4. Đang làm CLS",
+      label: "Cận lâm sàng",
       href: "/laboratory",
-      isPassed: isDiagnosticsDone || isConclusionStage || isCompleted,
+      isPassed: isDiagnosticPassed,
       isActive:
-        currentStage === "WAITING_FOR_DIAGNOSTIC" ||
-        currentStage === "DIAGNOSTIC_IN_PROGRESS" ||
-        currentStage === "WAITING_FOR_RESULTS",
+        journeyStage === "WAITING_FOR_DIAGNOSTIC" ||
+        journeyStage === "DIAGNOSTIC_IN_PROGRESS" ||
+        journeyStage === "WAITING_FOR_RESULTS",
     },
     {
       id: "conclusion",
-      label: "5. Chờ kết luận",
+      label: "Kết luận & Đơn",
       href: "/clinical",
       isPassed: isCompleted,
       isActive: isConclusionStage,
     },
     {
       id: "completed",
-      label: "6. Hoàn tất",
+      label: "Hoàn tất",
       href: "/portal",
       isPassed: isCompleted,
       isActive: isCompleted,
@@ -102,7 +129,7 @@ export function EncounterJourneyBar() {
 
   return (
     <div className="px-4 py-2 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-950 text-white flex items-center justify-between gap-3 overflow-x-auto select-none border-b border-blue-950 shadow-inner">
-      {/* Left: Active Demo Patient Pill */}
+      {/* Left: Active Demo Patient Pill & Current Friendly Stage */}
       <div className="flex items-center gap-2.5 shrink-0">
         <div className="w-6 h-6 rounded-full bg-blue-500/30 border border-blue-400/50 text-blue-300 flex items-center justify-center font-bold text-xs">
           <User className="w-3.5 h-3.5" />
@@ -117,15 +144,9 @@ export function EncounterJourneyBar() {
           <span className="text-slate-400 text-[11px] hidden lg:inline font-mono">
             {encounterCode}
           </span>
-          {returnExamTicket?.number ? (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">
-              Vé kết luận: {returnExamTicket.number}
-            </span>
-          ) : initialExamTicket?.number ? (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 font-mono font-bold">
-              Số khám: {initialExamTicket.number}
-            </span>
-          ) : null}
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 font-bold whitespace-nowrap">
+            ● {STAGE_LABELS[journeyStage] || journeyStage}
+          </span>
         </div>
       </div>
 
@@ -143,7 +164,7 @@ export function EncounterJourneyBar() {
                     ? "bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 hover:bg-emerald-900/80"
                     : "bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-slate-200"
                 }`}
-                title={`Chuyển tới phân hệ: ${step.label}`}
+                title={`Chuyển tới: ${step.label}`}
               >
                 {step.isPassed ? (
                   <Check className="w-3 h-3 text-emerald-400" />
@@ -169,7 +190,7 @@ export function EncounterJourneyBar() {
           type="button"
           onClick={handleReset}
           className="px-2.5 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 border border-red-800/80 text-red-300 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-xs"
-          title="Reset trạng thái Demo về ban đầu (Kiosk A023)"
+          title="Reset trạng thái Demo về ban đầu"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Reset Demo</span>
