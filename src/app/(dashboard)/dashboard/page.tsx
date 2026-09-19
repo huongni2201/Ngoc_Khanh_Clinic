@@ -162,8 +162,8 @@ export default function DashboardPage() {
     },
     {
       time: "09:55",
-      title: "Thu ngân nhận thanh toán VietQR 320.000 đ",
-      sub: "Chuyển sang trạng thái PAID_AUTHORIZED",
+      title: "Thu ngân nhận thanh toán VietQR 400.000 đ",
+      sub: "Đã xác nhận & Cấp quyền AUTHORIZED mở cổng CLS",
       type: "neutral",
     },
     {
@@ -177,7 +177,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="TỔNG QUAN VẬN HÀNH NGOẠI TRÚ (UC-RPT-01)"
+        eyebrow="TỔNG QUAN VẬN HÀNH NGOẠI TRÚ"
         title="Dashboard Quản trị Phòng khám"
         description="Theo dõi lưu lượng bệnh nhân, tiến độ cận lâm sàng và cảnh báo SLA thời gian thực"
         action={
@@ -188,7 +188,7 @@ export default function DashboardPage() {
             </span>
             <Link href="/encounters/ENC-260917-032">
               <Button className="font-bold bg-clinic-blue text-white shadow-sm hover:bg-clinic-blue-hover active:scale-[0.98]">
-                Vào khám ca #032 (Nguyễn Văn An)
+                Vào khám ca Nguyễn Văn An
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             </Link>

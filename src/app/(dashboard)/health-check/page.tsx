@@ -35,16 +35,30 @@ export default function HealthCheckPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="KHÁM SỨC KHỎE DOANH NGHIỆP (UC-HC / ENTITIES: COMPANY)"
+        eyebrow="PHÂN HỆ KHÁM SỨC KHỎE DOANH NGHIỆP"
         title="Khám Sức Khỏe Doanh Nghiệp & Đoàn Thể"
         description="Quản lý chiến dịch khám đoàn theo hợp đồng doanh nghiệp, phân bổ danh mục dịch vụ và xuất sổ sức khỏe"
         action={
-          <Button className="font-bold">
+          <Button className="font-bold text-xs bg-clinic-blue text-white">
             <PlusCircle className="w-4 h-4 mr-1.5" />
             + Tạo chiến dịch khám đoàn mới
           </Button>
         }
       />
+
+      {/* Corporate Scope Note Banner */}
+      <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-900 shadow-xs">
+        <div className="flex items-center gap-2">
+          <Building2 className="w-4 h-4 text-amber-700 shrink-0" />
+          <span>
+            <b>ĐỀ XUẤT MỞ RỘNG (PROTOTYPE): </b>
+            Quy trình khám đoàn, hợp đồng doanh nghiệp và báo cáo tổng hợp sẽ được khảo sát chi tiết với Ban Giám đốc để thống nhất đưa vào phạm vi MVP hay Phase 2.
+          </span>
+        </div>
+        <Badge variant="warn" className="text-[10px] uppercase font-bold shrink-0">
+          CẦN XÁC NHẬN
+        </Badge>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border-slate-200 shadow-sm p-4">

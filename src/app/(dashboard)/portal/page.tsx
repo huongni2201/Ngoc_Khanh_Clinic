@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { useUIStore } from "@/shared/stores/ui.store";
+import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
 import {
   Smartphone,
   Laptop,
@@ -24,21 +25,30 @@ import {
 
 export default function PatientPortalPage() {
   const { showToast } = useUIStore();
+  const {
+    patientName,
+    patientCode,
+    encounterCode,
+    rxCode,
+    isAppointmentBooked,
+    appointmentCode,
+  } = useDemoJourneyStore();
+
   const [deviceView, setDeviceView] = React.useState<"desktop" | "mobile">("desktop");
 
   const handleDownloadPdf = () => {
-    showToast("Đang tải file PDF: Ket_qua_kham_ENC-260917-032.pdf");
+    showToast(`Đang tải file PDF: Ket_qua_kham_${encounterCode}.pdf (Đã ký số)`);
   };
 
   const handleAddToCalendar = () => {
-    showToast("Đã thêm lịch tái khám ngày 17/10/2026 vào Calendar thiết bị của bạn!");
+    showToast("Đã thêm lịch tái khám ngày 17/10/2026 vào Lịch thiết bị (Google/Apple Calendar)!");
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="CỔNG THÔNG TIN BỆNH NHÂN TRỰC TUYẾN (UC-PORT-01 → 06 / FR-PORTAL-001)"
-        title="23. Patient Portal Web — Bệnh nhân tra cứu kết quả"
+        eyebrow="CỔNG THÔNG TIN BỆNH NHÂN TRỰC TUYẾN"
+        title="Cổng Thông Tin Người Bệnh — Tra cứu kết quả & Đơn thuốc"
         description="Giao diện tra cứu dành cho người bệnh: xem kết quả cận lâm sàng đã ký số, xem đơn thuốc điện tử, tải PDF hồ sơ và đồng bộ lịch tái khám"
         action={
           <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
@@ -51,7 +61,7 @@ export default function PatientPortalPage() {
               }`}
             >
               <Laptop className="w-3.5 h-3.5 mr-1" />
-              Xem bản Desktop
+              Xem bản Máy tính (Desktop)
             </Button>
             <Button
               size="sm"
@@ -62,7 +72,7 @@ export default function PatientPortalPage() {
               }`}
             >
               <Smartphone className="w-3.5 h-3.5 mr-1" />
-              Xem bản Mobile
+              Xem bản Điện thoại (Mobile)
             </Button>
           </div>
         }
@@ -106,9 +116,9 @@ export default function PatientPortalPage() {
                 NA
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white leading-tight">NGUYỄN VĂN AN</h2>
+                <h2 className="text-lg font-bold text-white leading-tight uppercase">{patientName}</h2>
                 <div className="text-xs text-blue-100 flex items-center gap-2 mt-0.5 font-medium">
-                  <span>Mã BN: PT-001842</span>
+                  <span>Mã BN: {patientCode}</span>
                   <span>•</span>
                   <span>45 tuổi (1981)</span>
                   <span>•</span>
@@ -135,10 +145,10 @@ export default function PatientPortalPage() {
                     Khám Nội tổng quát & Tim mạch (P.203)
                   </h3>
                   <p className="text-xs text-slate-600 mt-1">
-                    Bác sĩ phụ trách: <b>BS. CKI Lê Minh</b>
+                    Bác sĩ phụ trách: <b>BS. CKI Lê Minh</b> • Mã lượt khám: <b className="font-mono">{encounterCode}</b>
                   </p>
-                  <div className="text-xs text-slate-700 mt-2 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
-                    Chẩn đoán: <b>I10 - Tăng huyết áp nguyên phát / Rối loạn tuần hoàn não</b>
+                  <div className="text-xs text-slate-700 mt-2 bg-blue-50/60 p-2.5 rounded-xl border border-blue-100">
+                    Chẩn đoán: <b>I10 - Tăng huyết áp nguyên phát / Rối loạn lipid máu</b>
                   </div>
                 </div>
 
@@ -147,23 +157,23 @@ export default function PatientPortalPage() {
                     type="button"
                     variant="outline"
                     onClick={handleDownloadPdf}
-                    className="w-full font-bold text-clinic-blue border-blue-200 hover:bg-blue-50"
+                    className="w-full font-bold text-xs text-clinic-blue border-blue-200 hover:bg-blue-50"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Tải file PDF kết quả khám bệnh (Đã ký số)
+                    Tải file PDF kết quả khám bệnh (Đã ký số điện tử)
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
             {/* Diagnostic Results Section */}
-            <Card className="shadow-sm bg-white">
-              <CardHeader className="pb-2">
+            <Card className="shadow-sm bg-white border-slate-200">
+              <CardHeader className="pb-2 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] uppercase font-bold text-clinic-blue tracking-wider">
-                    KẾT QUẢ CẬN LÂM SÀNG ĐÃ DUYỆT (RESULTS COMPLETE)
+                    KẾT QUẢ CẬN LÂM SÀNG ĐÃ KÝ DUYỆT
                   </span>
-                  <span className="text-[11px] text-emerald-600 font-bold">3/3 dịch vụ</span>
+                  <span className="text-[11px] text-emerald-600 font-bold">Đã đủ 3/3 dịch vụ</span>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
@@ -175,7 +185,7 @@ export default function PatientPortalPage() {
                       Xét nghiệm huyết học (CTM 18 thông số)
                     </div>
                     <div className="text-[11px] text-red-600 font-bold">
-                      Bạch cầu (WBC): 12.8 G/L ↑ (Vượt ngưỡng tham chiếu)
+                      Bạch cầu (WBC): 12.8 G/L ↑ (Vượt ngưỡng tham chiếu 4.0 - 10.0 G/L)
                     </div>
                     <div className="text-[10px] text-slate-500">
                       Glucose: 5.8 mmol/L · KTV Nguyễn Đức Hải duyệt 09:20
@@ -196,22 +206,22 @@ export default function PatientPortalPage() {
                   <div className="space-y-0.5">
                     <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
                       <ImageIcon className="w-3.5 h-3.5 text-purple-600" />
-                      Siêu âm Doppler động mạch cảnh 2 bên
+                      Siêu âm Doppler ổ bụng tổng quát
                     </div>
                     <div className="text-[11px] text-emerald-700 font-bold">
-                      Kết luận: Thành mạch mềm mại, không có mảng xơ vữa hẹp lòng
+                      Kết luận: Gan mật tụy lách thận bình thường, chưa phát hiện u cục
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      Kèm 4 hình ảnh siêu âm độ phân giải cao
+                      BS. Trần Thu Hà kết luận tại Phòng 105
                     </div>
                   </div>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => showToast("Đang mở bộ 4 ảnh chụp siêu âm Doppler...")}
+                    onClick={() => showToast("Đang mở hình ảnh siêu âm Doppler...")}
                     className="text-xs font-bold text-clinic-blue shrink-0"
                   >
-                    Xem 4 ảnh
+                    Xem ảnh
                   </Button>
                 </div>
 
@@ -223,10 +233,10 @@ export default function PatientPortalPage() {
                       Điện tâm đồ vi tính (ECG 12 chuyển đạo)
                     </div>
                     <div className="text-[11px] text-emerald-700 font-bold">
-                      Kết luận: Nhịp xoang đều, tần số 78 chu kỳ/phút, không rối loạn dẫn truyền
+                      Kết luận: Nhịp xoang 82 ck/p, dày thất trái nhẹ, không thiếu máu cơ tim cấp
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      Đo tại Phòng 208 · BS. Trần Thu Hà kết luận
+                      Đo tại Phòng 208 · KTV. Vũ Tuấn duyệt
                     </div>
                   </div>
                   <Button
@@ -242,19 +252,19 @@ export default function PatientPortalPage() {
             </Card>
 
             {/* Electronic Prescription Card */}
-            <Card className="shadow-sm bg-white">
-              <CardHeader className="pb-2">
+            <Card className="shadow-sm bg-white border-slate-200">
+              <CardHeader className="pb-2 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] uppercase font-bold text-clinic-blue tracking-wider">
                     ĐƠN THUỐC ĐIỆN TỬ
                   </span>
                   <span className="font-mono text-xs font-bold text-clinic-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                    RX-260917-0018
+                    {rxCode}
                   </span>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-2.5 text-xs">
-                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                   <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>1. Amlodipine 5mg</span>
                     <span className="font-mono text-slate-700">30 viên</span>
@@ -264,23 +274,13 @@ export default function PatientPortalPage() {
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                   <div className="font-bold text-slate-900 flex items-center justify-between">
-                    <span>2. Ginkgo Biloba 80mg</span>
-                    <span className="font-mono text-slate-700">60 viên</span>
+                    <span>2. Atorvastatin 10mg</span>
+                    <span className="font-mono text-slate-700">30 viên</span>
                   </div>
                   <div className="text-slate-600 text-[11px]">
-                    Uống: 2 viên/ngày (sáng 1 viên, tối 1 viên sau ăn)
-                  </div>
-                </div>
-
-                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-                  <div className="font-bold text-slate-900 flex items-center justify-between">
-                    <span>3. Paracetamol 500mg</span>
-                    <span className="font-mono text-slate-700">10 viên</span>
-                  </div>
-                  <div className="text-slate-600 text-[11px]">
-                    Uống: 1 viên khi đau đầu nhiều (cách nhau tối thiểu 6 giờ)
+                    Uống: 1 viên/ngày vào buổi tối sau ăn no
                   </div>
                 </div>
               </CardContent>
@@ -292,7 +292,7 @@ export default function PatientPortalPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] uppercase font-bold text-clinic-blue tracking-wider flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
-                    LỊCH HẸN TÁI KHÁM ĐÃ ĐẶT
+                    LỊCH HẸN TÁI KHÁM
                   </span>
                   <Badge variant="purple" className="text-[10px] font-bold">
                     NHẮC QUA ZALO OA
@@ -311,7 +311,7 @@ export default function PatientPortalPage() {
                 <Button
                   type="button"
                   onClick={handleAddToCalendar}
-                  className="w-full font-bold bg-clinic-blue hover:bg-blue-700 text-white text-xs"
+                  className="w-full font-bold bg-clinic-blue hover:bg-blue-700 text-white text-xs h-9"
                 >
                   <Calendar className="w-3.5 h-3.5 mr-1.5" />
                   Thêm lịch nhắc vào điện thoại (Google / Apple Calendar)

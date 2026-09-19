@@ -26,12 +26,12 @@ export default async function PatientProfilePage({
       </div>
 
       <PageHeader
-        eyebrow="HỒ SƠ BỆNH ÁN TỔNG QUAN (UC-PAT-07 / FR-PAT-005)"
+        eyebrow="HỒ SƠ BỆNH ÁN TỔNG QUAN"
         title={`Hồ sơ bệnh nhân: ${patient.fullName} (${patient.patientCode})`}
         description="Patient Profile Cockpit — Tổng quan thông tin y tế, cảnh báo an toàn và dòng thời gian các đợt khám"
         action={
-          <Link href="/reception">
-            <Button className="font-bold">
+          <Link href={`/reception?patient=${patient.patientCode}`}>
+            <Button className="font-bold text-xs bg-clinic-blue text-white">
               <UserPlus className="w-4 h-4 mr-1.5" />
               + Tiếp nhận đợt khám mới
             </Button>

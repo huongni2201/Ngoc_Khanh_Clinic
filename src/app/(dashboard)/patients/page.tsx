@@ -9,8 +9,8 @@ export default function PatientsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="ĐỊNH DANH BỆNH NHÂN (UC-PAT-01 / FR-PAT-001)"
-        title="03. Tra cứu & Tìm kiếm bệnh nhân"
+        eyebrow="ĐỊNH DANH BỆNH NHÂN"
+        title="Tra cứu & Tìm kiếm bệnh nhân"
         description="Tra cứu đa tiêu chí theo Họ tên, SĐT, CCCD, Mã BN; tích hợp Panel xem nhanh (Side Drawer) bên phải"
         action={
           <Link href="/patients/new">

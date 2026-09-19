@@ -22,7 +22,8 @@ import {
   Smartphone,
   BarChart3,
   Eye,
-  CheckCircle2,
+  Ticket,
+  ClipboardList,
 } from "lucide-react";
 
 interface NavItem {
@@ -46,7 +47,7 @@ export function AppSidebar() {
 
   const rawSections: NavSection[] = [
     {
-      title: "HÀNH CHÍNH & TIẾP ĐÓN",
+      title: "TỔNG QUAN",
       items: [
         {
           label: "Dashboard điều hành",
@@ -54,20 +55,32 @@ export function AppSidebar() {
           icon: LayoutDashboard,
           roles: ["ALL", "RECEPTIONIST", "MANAGER", "ADMIN"],
         },
+      ],
+    },
+    {
+      title: "TIẾP ĐÓN",
+      items: [
         {
-          label: "Tiếp nhận & Hành trình",
+          label: "Lấy số Kiosk",
+          href: "/check-in",
+          icon: Ticket,
+          badge: "Kiosk",
+          roles: ["ALL", "RECEPTIONIST", "MANAGER"],
+        },
+        {
+          label: "Tiếp nhận & Lượt khám",
           href: "/reception",
           icon: UserPlus,
           roles: ["ALL", "RECEPTIONIST", "MANAGER"],
         },
         {
-          label: "Tìm kiếm bệnh nhân",
+          label: "Tra cứu bệnh nhân",
           href: "/patients",
           icon: Users,
           roles: ["ALL", "RECEPTIONIST", "DOCTOR", "CASHIER", "MANAGER"],
         },
         {
-          label: "Tạo mới hồ sơ BN",
+          label: "Tạo mới hồ sơ",
           href: "/patients/new",
           icon: UserPlus,
           badge: "Mới",
@@ -82,34 +95,33 @@ export function AppSidebar() {
       ],
     },
     {
-      title: "BÁC SĨ & LÂM SÀNG",
+      title: "KHÁM BỆNH",
       items: [
         {
-          label: "Doctor Worklist (P.203)",
+          label: "Hàng đợi bác sĩ",
           href: "/clinical",
           icon: Stethoscope,
           roles: ["ALL", "DOCTOR"],
         },
         {
-          label: "Khám lâm sàng (Central)",
+          label: "Khám lâm sàng",
           href: "/encounters/ENC-260917-032",
           icon: Activity,
-          badge: "#032",
           roles: ["ALL", "DOCTOR"],
         },
       ],
     },
     {
-      title: "KHU CẬN LÂM SÀNG",
+      title: "CẬN LÂM SÀNG",
       items: [
         {
-          label: "Xét nghiệm (P.202)",
+          label: "Xét nghiệm",
           href: "/laboratory",
           icon: FlaskConical,
           roles: ["ALL", "LAB_TECH"],
         },
         {
-          label: "Siêu âm & ECG (P.208)",
+          label: "Chẩn đoán hình ảnh & ECG",
           href: "/imaging",
           icon: Activity,
           roles: ["ALL", "IMAGING_TECH", "DOCTOR"],
@@ -117,10 +129,10 @@ export function AppSidebar() {
       ],
     },
     {
-      title: "DƯỢC & VIỆN PHÍ",
+      title: "THANH TOÁN & DƯỢC",
       items: [
         {
-          label: "Billing & Payment Gate",
+          label: "Thu ngân & Viện phí",
           href: "/billing",
           icon: CreditCard,
           roles: ["ALL", "CASHIER", "MANAGER"],
@@ -136,20 +148,26 @@ export function AppSidebar() {
           label: "Khám SK Doanh nghiệp",
           href: "/health-check",
           icon: Building2,
+          badge: "Đề xuất",
           roles: ["ALL", "RECEPTIONIST", "CASHIER", "MANAGER"],
         },
       ],
     },
     {
-      title: "NGƯỜI BỆNH & QUẢN TRỊ",
+      title: "NGƯỜI BỆNH",
       items: [
         {
-          label: "Patient Portal Web",
+          label: "Cổng thông tin bệnh nhân",
           href: "/portal",
           icon: Smartphone,
-          badge: "Mobile",
+          badge: "Portal",
           roles: ["ALL", "RECEPTIONIST", "DOCTOR"],
         },
+      ],
+    },
+    {
+      title: "QUẢN TRỊ",
+      items: [
         {
           label: "Báo cáo vận hành & SLA",
           href: "/reports",
@@ -157,7 +175,7 @@ export function AppSidebar() {
           roles: ["ALL", "MANAGER", "ADMIN"],
         },
         {
-          label: "Cài đặt & Adapter LIS",
+          label: "Cài đặt hệ thống",
           href: "/settings",
           icon: Settings,
           roles: ["ALL", "ADMIN"],
@@ -195,7 +213,7 @@ export function AppSidebar() {
             <div>
               <div className="font-black text-white text-base tracking-tight leading-none">ClinicOne</div>
               <div className="text-[10px] text-slate-400 font-medium tracking-wide mt-1">
-                Ngọc Khánh Outpatient Clinic
+                Phòng khám Đa khoa Ngọc Khánh
               </div>
             </div>
           )}
@@ -215,7 +233,7 @@ export function AppSidebar() {
         <div className="p-3 mx-3 my-3 rounded-xl bg-slate-900 border border-slate-800/80 text-xs flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-bold text-blue-400 block tracking-wider">
-              VAI TRÒ HIỆN TẠI
+              VAI TRÒ LÀM VIỆC
             </span>
             <span className="font-bold text-white text-xs">{roleConfig.badgeLabel}</span>
           </div>
@@ -257,6 +275,8 @@ export function AppSidebar() {
                       className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-black ${
                         isActive
                           ? "bg-white text-clinic-blue shadow-xs"
+                          : item.badge === "Đề xuất"
+                          ? "bg-amber-950 text-amber-300 border border-amber-700"
                           : "bg-blue-950 text-blue-300 border border-blue-800"
                       }`}
                     >
@@ -270,7 +290,7 @@ export function AppSidebar() {
         ))}
       </div>
 
-      {/* Sidebar Footer: Quick Full View Switcher */}
+      {/* Sidebar Footer: System Status */}
       {!isSidebarCollapsed && (
         <div className="p-3 m-3 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
           {currentRole !== "ALL" ? (
@@ -280,12 +300,12 @@ export function AppSidebar() {
               className="w-full py-1.5 px-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
             >
               <Eye className="w-3.5 h-3.5" />
-              Xem đầy đủ 25 màn hình
+              Xem toàn bộ các phân hệ
             </button>
           ) : (
             <div className="text-center">
-              <div className="font-bold text-slate-300">Hệ thống chuyển đổi số v1.0</div>
-              <div className="text-[10px] text-slate-400">Đầy đủ 106 Use Cases & 25 Màn hình</div>
+              <div className="font-bold text-slate-300">Phòng khám Đa khoa Ngọc Khánh</div>
+              <div className="text-[10px] text-slate-400">Chuyển đổi số Quy trình Ngoại trú</div>
             </div>
           )}
         </div>

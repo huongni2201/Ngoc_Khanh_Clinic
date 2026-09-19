@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageHeader } from "@/shared/components/page-header";
 import { EncounterWorkspaceLayout } from "@/widgets/clinical-workspace/encounter-workspace-layout";
 import { MOCK_ACTIVE_ENCOUNTER } from "@/shared/constants/mock-data";
+import { useDemoJourneyStore } from "@/shared/stores/demo-journey.store";
 import { ArrowLeft } from "lucide-react";
 
 export default function EncounterWorkspacePage({
@@ -13,27 +14,30 @@ export default function EncounterWorkspacePage({
   params: Promise<{ encounterId: string }>;
 }) {
   const resolvedParams = React.use(params);
+  const { patientName, patientCode, encounterCode, initialExamTicket, returnExamTicket } = useDemoJourneyStore();
   const encounter = MOCK_ACTIVE_ENCOUNTER;
+
+  const currentTicketNum = returnExamTicket?.number || initialExamTicket?.number || "P203-032";
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <Link
           href="/clinical"
-          className="text-xs text-slate-700 hover:text-clinic-blue flex items-center gap-1 font-semibold"
+          className="text-xs text-slate-700 hover:text-clinic-blue flex items-center gap-1 font-bold"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Quay lại Doctor Worklist (P.203)
+          Quay lại Hàng đợi Bác sĩ (P.203)
         </Link>
         <span className="text-xs text-slate-700 font-mono">
-          Lượt khám: <b>{encounter.encounterCode}</b> • STT <b>{encounter.queueNumber}</b>
+          Lượt khám: <b>{encounterCode}</b> • STT <b>{currentTicketNum}</b>
         </span>
       </div>
 
       <PageHeader
-        eyebrow="TRUNG TÂM KHÁM CHỮA BỆNH (UC-CLN-02 → 12 / FR-CLN)"
-        title="Clinical Workspace — Phòng Khám 203 (Nội Tổng Quát)"
-        description="Màn hình khám bệnh trung tâm: xem bệnh sử, chỉ định cận lâm sàng đa đợt, nhận kết quả tự động và kê đơn điện tử"
+        eyebrow="BÀN KHÁM CHUYÊN KHOA NGOẠI TRÚ"
+        title="Khám Lâm Sàng — Phòng Khám 203 (Nội Tổng Quát)"
+        description="Giao diện làm việc trung tâm của bác sĩ: khám lâm sàng, chỉ định cận lâm sàng đa đợt, theo dõi kết quả tự động trả về và kê đơn thuốc điện tử"
       />
 
       <EncounterWorkspaceLayout encounter={encounter} />

@@ -53,11 +53,11 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="HỆ THỐNG & TÍCH HỢP (UC-ADM-01 → 08 / BR-007)"
-        title="25. Quản Trị Hệ Thống & Adapter Tích Hợp LIS/PACS"
+        eyebrow="QUẢN TRỊ HỆ THỐNG & KẾT NỐI TÍCH HỢP"
+        title="Cài Đặt Hệ Thống & Adapter Tích Hợp LIS/PACS"
         description="Giám sát trạng thái 4 kết nối ngoại vi theo thời gian thực và ghi nhận vết kiểm toán (Audit Trail)"
         action={
-          <Button variant="outline" onClick={() => showToast("Đang kiểm tra kết nối 4 adapter...")} className="font-bold">
+          <Button variant="outline" onClick={() => showToast("Đang kiểm tra kết nối 4 adapter...")} className="font-bold text-xs">
             <RefreshCw className="w-4 h-4 mr-1.5" />
             Kiểm tra kết nối
           </Button>
@@ -106,7 +106,7 @@ export default function SettingsPage() {
       <Card className="border-slate-200 shadow-sm">
         <CardHeader className="bg-slate-50/70 p-4 border-b border-slate-200">
           <CardTitle className="text-sm font-bold text-slate-800">
-            Nhật ký kiểm toán hệ thống (Audit Trail — BR-007)
+            Nhật ký kiểm toán hệ thống (Audit Trail)
           </CardTitle>
         </CardHeader>
         <Table>

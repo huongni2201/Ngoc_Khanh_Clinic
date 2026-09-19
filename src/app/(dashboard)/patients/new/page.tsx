@@ -219,8 +219,8 @@ export default function NewPatientPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
-        eyebrow="ĐĂNG KÝ HỒ SƠ NGƯỜI BỆNH (UC-PAT-02 / FR-PAT-001)"
-        title="04. Tạo mới hồ sơ bệnh nhân"
+        eyebrow="ĐĂNG KÝ HỒ SƠ NGƯỜI BỆNH"
+        title="Tạo mới hồ sơ bệnh nhân"
         description="Đăng ký hồ sơ định danh gốc vào hệ thống ClinicOne; cấp mã định danh người bệnh (Patient ID) và lưu trữ cảnh báo an toàn lâm sàng"
         action={
           <div className="flex items-center gap-2 flex-wrap">

@@ -30,8 +30,8 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="BÁO CÁO VẬN HÀNH & CHỈ SỐ TAT / SLA (UC-RPT-01 → 04 / FR-RPT-002)"
-        title="24. Operational & SLA Reports — Báo cáo phòng khám"
+        eyebrow="BÁO CÁO VẬN HÀNH & CHỈ SỐ TAT / SLA"
+        title="Báo Cáo Vận Hành & Chỉ Số TAT / SLA"
         description="Giám sát hiệu suất luồng bệnh nhân, thời gian trả kết quả (Turnaround Time - TAT), tỷ lệ đạt SLA cận lâm sàng và phân tích doanh thu"
         action={
           <div className="flex items-center gap-2">

@@ -24,7 +24,7 @@ export function PatientQuickViewDrawer() {
 
   const handleStartEncounter = () => {
     closePatientDrawer();
-    router.push("/reception");
+    router.push(`/reception?patient=${patient.patientCode}`);
   };
 
   const handleOpenFullProfile = () => {

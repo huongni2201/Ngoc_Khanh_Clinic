@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { MockServiceItem } from "../constants/mock-data";
 
-export type WorkspaceTab = "SUMMARY" | "VITALS" | "ORDERS" | "RESULTS" | "PRESCRIPTION";
+export type WorkspaceTab = "EXAM" | "ORDERS" | "RESULTS" | "CONCLUSION";
+
+export type ServiceRequestStatus = "ORDERED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+export type PaymentAuthorizationStatus = "NOT_REQUIRED" | "PENDING" | "AUTHORIZED" | "WAIVED" | "REVOKED";
 
 export interface WorkspaceOrderItem {
   id: string;
@@ -13,7 +16,9 @@ export interface WorkspaceOrderItem {
   roomName: string;
   floor: string;
   price: number;
-  status: "WAITING_FOR_PAYMENT" | "PAID_AUTHORIZED" | "IN_PROGRESS" | "COMPLETED";
+  serviceRequestStatus: ServiceRequestStatus;
+  paymentAuthorizationStatus: PaymentAuthorizationStatus;
+  status?: string; // backward compatibility fallback
   preparationInstructions: string;
   sampleType?: string;
   addedAt: string;
@@ -33,7 +38,7 @@ interface WorkspaceState {
   addOrder: (service: MockServiceItem, round?: number) => boolean;
   removeOrder: (orderId: string) => void;
   createNewRound: () => void;
-  toggleOrderStatus: (orderId: string) => void;
+  authorizeAllRound: (round?: number) => void;
 
   // Computeds / Helpers
   getTotalCLSAmount: () => number;
@@ -51,6 +56,8 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     roomName: "Phòng Xét Nghiệm Trung Tâm",
     floor: "Tầng 2",
     price: 85000,
+    serviceRequestStatus: "COMPLETED",
+    paymentAuthorizationStatus: "AUTHORIZED",
     status: "PAID_AUTHORIZED",
     preparationInstructions: "Nhịn ăn sáng tối thiểu 6-8 tiếng, ngồi nghỉ 5 phút trước khi lấy mẫu máu",
     sampleType: "Máu toàn phần EDTA (Ống nắp tím)",
@@ -66,6 +73,8 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     roomName: "Phòng Xét Nghiệm Trung Tâm",
     floor: "Tầng 2",
     price: 45000,
+    serviceRequestStatus: "COMPLETED",
+    paymentAuthorizationStatus: "AUTHORIZED",
     status: "PAID_AUTHORIZED",
     preparationInstructions: "Nhịn ăn từ 22h00 tối hôm trước, có thể uống một ít nước lọc",
     sampleType: "Huyết tương chống đông Fluoride (Ống nắp xám)",
@@ -81,6 +90,8 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
     roomName: "Phòng Thăm Dò Chức Năng & Điện Tim",
     floor: "Tầng 2",
     price: 120000,
+    serviceRequestStatus: "COMPLETED",
+    paymentAuthorizationStatus: "AUTHORIZED",
     status: "PAID_AUTHORIZED",
     preparationInstructions: "Nằm nghỉ ngơi thả lỏng 5 phút, tháo bỏ đồng hồ, điện thoại và trang sức kim loại",
     addedAt: "08:35",
@@ -88,7 +99,7 @@ const INITIAL_ORDERS: WorkspaceOrderItem[] = [
 ];
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
-  activeTab: "SUMMARY",
+  activeTab: "EXAM",
   setActiveTab: (tab) => set({ activeTab: tab }),
   orderRound: 1,
   orders: INITIAL_ORDERS,
@@ -113,6 +124,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return false;
     }
 
+    const isRoundOne = targetRound === 1;
     const newOrder: WorkspaceOrderItem = {
       id: `ord-${Date.now().toString().slice(-4)}`,
       round: targetRound,
@@ -123,7 +135,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       roomName: service.roomName,
       floor: service.floor,
       price: service.price,
-      status: targetRound === 1 ? "PAID_AUTHORIZED" : "WAITING_FOR_PAYMENT",
+      serviceRequestStatus: "ORDERED",
+      paymentAuthorizationStatus: isRoundOne ? "AUTHORIZED" : "PENDING",
+      status: isRoundOne ? "PAID_AUTHORIZED" : "WAITING_FOR_PAYMENT",
       preparationInstructions: service.preparationInstructions,
       sampleType: service.sampleType,
       addedAt: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
@@ -159,13 +173,14 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     });
   },
 
-  toggleOrderStatus: (orderId) => {
+  authorizeAllRound: (round) => {
     set((state) => ({
       orders: state.orders.map((o) =>
-        o.id === orderId
+        round === undefined || o.round === round
           ? {
               ...o,
-              status: o.status === "PAID_AUTHORIZED" ? "WAITING_FOR_PAYMENT" : "PAID_AUTHORIZED",
+              paymentAuthorizationStatus: "AUTHORIZED",
+              status: "PAID_AUTHORIZED",
             }
           : o
       ),

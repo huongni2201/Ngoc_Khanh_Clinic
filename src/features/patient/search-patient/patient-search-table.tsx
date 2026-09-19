@@ -35,7 +35,7 @@ export function PatientSearchTable() {
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold tracking-wider text-clinic-blue uppercase">
-              TÌM KIẾM ĐA TIÊU CHÍ BỆNH NHÂN (UC-PAT-01)
+              TÌM KIẾM ĐA TIÊU CHÍ BỆNH NHÂN
             </span>
             <span className="text-xs text-slate-600 font-medium hidden sm:inline">
               Hỗ trợ tiếng Việt có dấu, không dấu & CCCD 12 số
