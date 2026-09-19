@@ -80,6 +80,30 @@ export default function PatientPortalPage() {
         }
       />
 
+      {/* Primary Flow Notice: Zero-Account Secure Link */}
+      <div className="p-4 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-2xl border border-blue-800 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-blue-500/30 text-blue-300 border border-blue-400/40 flex items-center justify-center font-bold shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="font-black text-xs text-white uppercase tracking-wide">
+              QUY CHUẨN MỚI (V4): TRẢ KẾT QUẢ KHÔNG CẦN TÀI KHOẢN (ZERO-ACCOUNT)
+            </div>
+            <div className="text-[11px] text-blue-200">
+              Người bệnh không cần đăng ký tài khoản portal. Hệ thống gửi đường dẫn bảo mật ngẫu nhiên <b className="font-mono text-white">/r/[token]</b> kèm mã PIN 6 số qua SMS/Zalo.
+            </div>
+          </div>
+        </div>
+
+        <Link href="/r/res_demo_pt001842">
+          <Button size="sm" className="font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 shrink-0">
+            <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+            Xem trang trả kết quả bệnh nhân (/r/[token]) →
+          </Button>
+        </Link>
+      </div>
+
       <div className="flex justify-center">
         {/* Container: Toggles between desktop max-width or smartphone phone frame */}
         <div

@@ -1,11 +1,10 @@
 export type UserRole =
   | "ALL"
+  | "CLINIC_ADMIN"
   | "FRONT_DESK"
   | "DOCTOR"
   | "LAB_TECH"
-  | "IMAGING_TECH"
-  | "MANAGER"
-  | "ADMIN";
+  | "IMAGING_TECH";
 
 export type Permission =
   // Patient
@@ -43,6 +42,7 @@ export type Permission =
   | "payment.diagnostic.refund_if_allowed"
   | "payment.reconciliation.read"
   | "payment.reconciliation.manage"
+  | "payment.reconcile"
   // Diagnostics & Results
   | "diagnostic.perform"
   | "result.read"
@@ -59,8 +59,19 @@ export type Permission =
   | "appointment.update"
   | "appointment.create_follow_up"
   | "journey.read"
+  // Pricing
+  | "pricing.read"
+  | "pricing.manage"
+  // User & Role Admin
+  | "user.manage"
+  | "role.manage"
+  // Secure Patient Result Link Delivery
+  | "patient_result_link.issue"
+  | "patient_result_link.resend"
+  | "patient_result_link.revoke"
   // Admin & Reports
   | "reports.read"
+  | "report.read"
   | "settings.manage";
 
 export interface RoleConfig {
@@ -103,6 +114,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "payment.diagnostic.refund_if_allowed",
     "payment.reconciliation.read",
     "payment.reconciliation.manage",
+    "payment.reconcile",
     "diagnostic.perform",
     "result.read",
     "result.read_detail",
@@ -116,8 +128,41 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "appointment.update",
     "appointment.create_follow_up",
     "journey.read",
+    "pricing.read",
+    "pricing.manage",
+    "user.manage",
+    "role.manage",
+    "patient_result_link.issue",
+    "patient_result_link.resend",
+    "patient_result_link.revoke",
     "reports.read",
+    "report.read",
     "settings.manage",
+  ],
+  CLINIC_ADMIN: [
+    "patient.read_basic",
+    "patient.read_clinical",
+    "patient.read_history",
+    "encounter.read",
+    "encounter.read_basic",
+    "doctor_waitlist.read_summary",
+    "doctor_worklist.read",
+    "clinical.read",
+    "clinical.read_full",
+    "payment.reconciliation.read",
+    "payment.reconciliation.manage",
+    "payment.reconcile",
+    "pricing.read",
+    "pricing.manage",
+    "user.manage",
+    "role.manage",
+    "patient_result_link.issue",
+    "patient_result_link.resend",
+    "patient_result_link.revoke",
+    "reports.read",
+    "report.read",
+    "settings.manage",
+    "journey.read",
   ],
   FRONT_DESK: [
     "patient.read_basic",
@@ -129,11 +174,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "encounter.assign",
     "encounter.transfer",
     "payment.initial_exam.collect",
+    "pricing.read",
     "appointment.read",
     "appointment.create",
     "appointment.update",
     "journey.read",
     "doctor_waitlist.read_summary",
+    "patient_result_link.resend",
   ],
   DOCTOR: [
     "patient.read_clinical",
@@ -149,6 +196,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "order.read",
     "order.create",
     "order.cancel",
+    "pricing.read",
     "payment.diagnostic.collect",
     "payment.diagnostic.refund_if_allowed",
     "result.read",
@@ -159,6 +207,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "prescription.issue",
     "appointment.create_follow_up",
     "journey.read",
+    "report.read",
+    "patient_result_link.issue",
+    "patient_result_link.resend",
+    "patient_result_link.revoke",
   ],
   LAB_TECH: [
     "patient.read_basic",
@@ -176,33 +228,24 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "result.verify",
     "journey.read",
   ],
-  MANAGER: [
-    "patient.read_basic",
-    "encounter.read_basic",
-    "doctor_waitlist.read_summary",
-    "doctor_worklist.read",
-    "payment.reconciliation.read",
-    "payment.reconciliation.manage",
-    "reports.read",
-    "journey.read",
-  ],
-  ADMIN: [
-    "patient.read_basic",
-    "encounter.read_basic",
-    "reports.read",
-    "settings.manage",
-    "journey.read",
-  ],
 };
 
 export const ROLES: Record<UserRole, RoleConfig> = {
   ALL: {
     id: "ALL",
-    label: "Tất cả màn hình (Full)",
+    label: "Tất cả màn hình (Full Preview)",
     badgeLabel: "Full View",
     defaultRoute: "/dashboard",
-    description: "Xem toàn bộ phân hệ hệ thống",
+    description: "Xem toàn bộ phân hệ hệ thống không giới hạn",
     permissions: ROLE_PERMISSIONS.ALL,
+  },
+  CLINIC_ADMIN: {
+    id: "CLINIC_ADMIN",
+    label: "Ban Giám đốc & Quản trị phòng khám",
+    badgeLabel: "Clinic Admin",
+    defaultRoute: "/dashboard",
+    description: "Dashboard KPIs, Đối soát viện phí, Quản lý bảng giá, Phân quyền nhân viên, Cài đặt hệ thống & LIS/PACS",
+    permissions: ROLE_PERMISSIONS.CLINIC_ADMIN,
   },
   FRONT_DESK: {
     id: "FRONT_DESK",
@@ -217,7 +260,7 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     label: "Bác sĩ khám (P.203)",
     badgeLabel: "BS. Lê Minh",
     defaultRoute: "/clinical",
-    description: "Khám lâm sàng, Hồ sơ bệnh nhân, Chỉ định CLS, Thu phí CLS tại phòng, Kết luận & Kê đơn",
+    description: "Khám lâm sàng, Hồ sơ bệnh nhân, Chỉ định CLS, Thu phí CLS tại phòng, Kết luận, Kê đơn & Gửi kết quả",
     permissions: ROLE_PERMISSIONS.DOCTOR,
   },
   LAB_TECH: {
@@ -235,22 +278,6 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     defaultRoute: "/imaging",
     description: "Siêu âm P.105, Điện tim P.208, X-quang KTS & Auto-return",
     permissions: ROLE_PERMISSIONS.IMAGING_TECH,
-  },
-  MANAGER: {
-    id: "MANAGER",
-    label: "Quản lý phòng khám",
-    badgeLabel: "Giám đốc y khoa",
-    defaultRoute: "/reports",
-    description: "Dashboard KPIs, cảnh báo SLA, TAT chuyên khoa, Đối soát viện phí",
-    permissions: ROLE_PERMISSIONS.MANAGER,
-  },
-  ADMIN: {
-    id: "ADMIN",
-    label: "Quản trị hệ thống",
-    badgeLabel: "Admin IT",
-    defaultRoute: "/settings",
-    description: "Adapter LIS/PACS/Zalo, Phân quyền phòng ban, Audit trail",
-    permissions: ROLE_PERMISSIONS.ADMIN,
   },
 };
 

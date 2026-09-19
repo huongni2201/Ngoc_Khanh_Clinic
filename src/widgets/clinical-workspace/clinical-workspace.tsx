@@ -13,6 +13,7 @@ import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
 import { DiagnosticPaymentDialog } from "@/features/billing/diagnostic-payment/diagnostic-payment-dialog";
+import { SendResultDialog } from "@/features/patient-result-access/send-result-dialog";
 import {
   Printer,
   Receipt,
@@ -37,6 +38,8 @@ import {
   ExternalLink,
   CreditCard,
   Banknote,
+  Send,
+  KeyRound,
 } from "lucide-react";
 
 export function ClinicalWorkspace() {
@@ -118,10 +121,12 @@ export function ClinicalWorkspace() {
     showToast("Đã lập lịch hẹn tái khám ngày 17/10/2026 và tự động lên lịch nhắc qua Zalo OA!");
   };
 
+  const [isSendResultDialogOpen, setIsSendResultDialogOpen] = React.useState(false);
+
   const handleFinishVisit = () => {
     completeEncounter();
-    showToast(`Đã hoàn tất toàn bộ ca khám ${encounterCode}! Hồ sơ đã lưu trữ vào Cổng thông tin người bệnh.`);
-    router.push("/clinical");
+    setIsSendResultDialogOpen(true);
+    showToast(`Đã hoàn tất ca khám ${encounterCode}! Sẵn sàng phát hành liên kết trả kết quả.`);
   };
 
   return (
@@ -858,20 +863,71 @@ export function ClinicalWorkspace() {
                 {appointmentCreated ? "Đã đặt lịch hẹn ✓" : "Tạo lịch tái khám từ Encounter"}
               </Button>
             </div>
+            {/* COMPLETED ENCOUNTER STATUS & SEND RESULT BANNER */}
+            {journeyStage === "COMPLETED" && (
+              <div className="p-4 bg-emerald-950 text-white rounded-2xl border border-emerald-700 shadow-md space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                      <CheckCircle2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-white">
+                        HỒ SƠ BỆNH ÁN ĐÃ HOÀN TẤT & ĐÓNG LƯỢT KHÁM
+                      </div>
+                      <div className="text-xs text-emerald-300">
+                        Gói kết quả y tế (Result Package) đã sẵn sàng để gửi bảo mật tới người bệnh qua SMS, Zalo hoặc Email.
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    onClick={() => setIsSendResultDialogOpen(true)}
+                    className="font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 shadow-md h-10 px-4"
+                  >
+                    <Send className="w-4 h-4 mr-1.5" />
+                    Gửi kết quả cho bệnh nhân (SMS / Zalo)
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
 
           <CardFooter className="p-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
             <Button size="sm" variant="ghost" onClick={() => setActiveTab("RESULTS")} className="text-xs">
               ← Quay lại Kết quả CLS
             </Button>
-            <Button
-              size="sm"
-              onClick={handleFinishVisit}
-              className="w-full sm:w-auto font-black text-xs h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30"
-            >
-              <FileCheck className="w-4 h-4 mr-2" />
-              Hoàn tất ca khám & Đóng hồ sơ bệnh án →
-            </Button>
+            {journeyStage === "COMPLETED" ? (
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Button
+                  size="sm"
+                  onClick={() => setIsSendResultDialogOpen(true)}
+                  className="font-bold text-xs h-11 px-5 bg-clinic-blue hover:bg-blue-700 text-white shadow-md"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Gửi kết quả cho bệnh nhân (SMS / Zalo)
+                </Button>
+                <Link href="/clinical">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="font-bold text-xs h-11 px-4 border-slate-300 text-slate-700 hover:bg-slate-100"
+                  >
+                    Về Danh sách khám Bác sĩ →
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                onClick={handleFinishVisit}
+                className="w-full sm:w-auto font-black text-xs h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30"
+              >
+                <FileCheck className="w-4 h-4 mr-2" />
+                Hoàn tất ca khám & Đóng hồ sơ bệnh án →
+              </Button>
+            )}
           </CardFooter>
         </Card>
       )}
@@ -881,6 +937,14 @@ export function ClinicalWorkspace() {
         isOpen={isPaymentDialogOpen}
         onClose={() => setIsPaymentDialogOpen(false)}
         round={paymentTargetRound}
+      />
+
+      {/* Send Result Secure Dialog */}
+      <SendResultDialog
+        isOpen={isSendResultDialogOpen}
+        onClose={() => setIsSendResultDialogOpen(false)}
+        encounterCode={encounterCode}
+        patientName={patientName}
       />
     </div>
   );

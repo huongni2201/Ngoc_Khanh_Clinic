@@ -92,6 +92,20 @@ export default function LoginPage() {
             </Button>
 
             <Button
+              variant="outline"
+              onClick={() => handleLogin("CLINIC_ADMIN", "PHÒNG QUẢN LÝ")}
+              className="justify-start h-12 bg-slate-900 border-slate-800 hover:bg-emerald-950/60 hover:border-emerald-700 text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold mr-3 shrink-0">
+                AD
+              </div>
+              <div>
+                <div className="font-bold text-xs text-white">Ban Giám đốc & Quản trị (Clinic Admin)</div>
+                <div className="text-[10px] text-slate-400">KPIs, Đối soát viện phí, Quản lý bảng giá, Cài đặt hệ thống</div>
+              </div>
+            </Button>
+
+            <Button
               variant="default"
               onClick={() => handleLogin("ALL", "TOÀN VIỆN")}
               className="w-full font-black text-xs h-11 bg-clinic-blue mt-2"
