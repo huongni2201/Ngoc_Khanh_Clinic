@@ -84,6 +84,17 @@ export function AppSidebar() {
       ],
     },
     {
+      title: "KHÁM SỨC KHỎE",
+      items: [
+        {
+          label: "Khám sức khỏe doanh nghiệp",
+          href: "/health-check",
+          icon: Building2,
+          roles: ["ALL", "FRONT_DESK", "CLINIC_ADMIN"],
+        },
+      ],
+    },
+    {
       title: "KHÁM BỆNH",
       items: [
         {

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -19,6 +20,7 @@
     "react-dom": "19.0.0",
     "react-hook-form": "^7.54.2",
     "tailwind-merge": "^3.0.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
   },
@@ -27,9 +29,12 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.25",
     "postcss": "^8.5.2",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^5.0.1"
   },
   "allowScripts": {
     "sharp@0.35.4": true,
